@@ -4,7 +4,7 @@
 
 A C language learning project for building a small TCP/IP communication control system on Ubuntu 24.04.
 
-The project is currently in **Phase 2.5: Repository Preparation**. TCP socket communication is intentionally not implemented yet.
+The project is currently in **Phase 3: TCP Server Implementation**. A basic single-client TCP server is implemented.
 
 ## Project Overview
 
@@ -18,7 +18,7 @@ Windows PC Client
 Ubuntu Linux TCP Server
 ```
 
-The first implementation target is an Ubuntu TCP server that receives line-based commands, updates a small internal state, and returns text responses. Later phases will add a Windows GUI client, logging, configuration files, tests, GitHub Actions, and possible CAN or sensor simulation.
+The first implementation is an Ubuntu TCP server that receives line-based commands, updates a small internal state, and returns text responses. Later phases will add a Windows GUI client, logging, configuration files, tests, GitHub Actions, and possible CAN or sensor simulation.
 
 ## Learning Objectives
 
@@ -51,7 +51,9 @@ tcp-socket-control-system/
 |-- tests/
 |-- scripts/
 |   `-- setup_ubuntu.sh
+|-- CHANGELOG.md
 |-- CMakeLists.txt
+|-- CONTRIBUTING.md
 |-- README.md
 |-- README.en.md
 |-- LICENSE
@@ -77,12 +79,54 @@ The script installs:
 
 ## Build Procedure
 
-No executable is implemented yet. Use the following commands to verify the CMake project configuration:
+Build the `tcp_socket_server` executable:
 
 ```bash
 cmake -S . -B build
 cmake --build build
 ```
+
+Expected executable path:
+
+```text
+build/tcp_socket_server
+```
+
+## Run Server
+
+```bash
+./build/tcp_socket_server
+```
+
+The server listens on TCP port `5000`.
+
+## Manual Test
+
+Connect from another terminal on Ubuntu:
+
+```bash
+nc 127.0.0.1 5000
+```
+
+Commands:
+
+```text
+PING
+GET_STATUS
+START
+GET_STATUS
+STOP
+RESET
+QUIT
+```
+
+From Windows PowerShell, if the Ubuntu server IP is `192.168.11.54`:
+
+```powershell
+Test-NetConnection 192.168.11.54 -Port 5000
+```
+
+For interactive testing, use `telnet` or another TCP client tool.
 
 ## Documentation
 
@@ -95,6 +139,7 @@ Main documents:
 - [Protocol specification](docs/en/protocol_spec.md)
 - [Communication sequences](docs/en/sequence.md)
 - [State transition design](docs/en/state_transition.md)
+- [Implementation notes](docs/en/implementation_notes.md)
 - [Development log](docs/en/development_log.md)
 
 ## Roadmap
@@ -102,7 +147,7 @@ Main documents:
 - [x] Phase 1: Project skeleton
 - [x] Phase 2: TCP/IP system design documents
 - [x] Phase 2.5: Repository preparation
-- [ ] Phase 3: TCP server implementation
+- [x] Phase 3: TCP server implementation
 - [ ] Phase 4: TCP client
 - [ ] Phase 5: Windows GUI
 - [ ] Phase 6: Logging and configuration
@@ -111,5 +156,4 @@ Main documents:
 
 ## Current Status
 
-The repository is ready for public release as a design-first C networking project. Phase 3 will implement the first TCP server according to `docs/en/protocol_spec.md`.
-
+This is a design-first C networking learning project. The basic TCP server now follows the protocol in `docs/en/protocol_spec.md`.

@@ -1,5 +1,26 @@
 # Development Log
 
+## Phase 3 - Basic TCP Server
+
+### Summary
+
+Implemented the first working single-client TCP server in C.
+
+### Added
+
+- Basic TCP server listening on port `5000`.
+- Line-based command handling for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
+- Internal state management for `STOP` and `RUN`.
+- Standard output logs for startup, connection, receive, send, and shutdown events.
+- Build, run, and manual test instructions.
+- Implementation notes.
+- `CHANGELOG.md` and `CONTRIBUTING.md`.
+
+### Notes
+
+- Multi-client support and GUI clients are planned for future phases.
+- CSV logging, configuration files, CAN integration, and tests are not part of Phase 3.
+
 ## Phase 2.5 - Repository Preparation
 
 ### Summary
@@ -58,4 +79,3 @@ Created the initial project structure.
 ### Notes
 
 Socket communication was intentionally deferred.
-
