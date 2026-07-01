@@ -102,6 +102,8 @@ The server listens on TCP port `5000`.
 
 ## Manual Test
 
+![TCP server response check](docs/images/tcp-server-response-check.png)
+
 Connect from another terminal on Ubuntu:
 
 ```bash

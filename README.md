@@ -104,6 +104,8 @@ build/tcp_socket_server
 
 ## 動作確認
 
+![TCPサーバ応答確認](docs/images/tcp-server-response-check.png)
+
 Ubuntu の別ターミナルから `netcat` で接続します。
 
 ```bash
