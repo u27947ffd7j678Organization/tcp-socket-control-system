@@ -1,5 +1,28 @@
 # 開発ログ
 
+## Phase 5 - PySide6 GUI TCP クライアント
+
+### 概要
+
+PySide6 を使った GUI TCP クライアントを追加しました。
+
+### 追加内容
+
+- `client/python_gui/tcp_gui_client.py`。
+- `client/python_gui/requirements.txt`。
+- `client/python_gui/README.md`。
+- host と port の入力欄。
+- Connect / Disconnect ボタン。
+- 既存TCPサーバプロトコル用のコマンドボタン。
+- 送信ログと受信ログの表示。
+- 接続状態表示。
+- ワーカースレッドによる socket 通信処理。
+
+### メモ
+
+- C言語TCPサーバ側のプロトコルは変更していません。
+- 既存のCLIクライアントは `client/python/` 配下に残しています。
+
 ## Phase 4 - Python TCP クライアント
 
 ### 概要

@@ -1,5 +1,67 @@
 # 実装メモ
 
+## Phase 5: PySide6 GUI TCP クライアント
+
+Phase 5 では、PySide6 を使った GUI TCP クライアントを追加しました。
+
+配置場所:
+
+```text
+client/python_gui/tcp_gui_client.py
+```
+
+### 目的
+
+- デスクトップGUIから Ubuntu 上の C 言語 TCP サーバへ接続する。
+- host と port を画面から入力できるようにする。
+- ボタン操作でプロトコルコマンドを送信する。
+- 送信ログと受信ログを画面に表示する。
+- 現在の接続状態を表示する。
+
+### 要件
+
+- Python 3.10以上。
+- PySide6。
+- 既存のTCPサーバプロトコルは変更しない。
+
+依存関係のインストール:
+
+```bash
+python -m pip install -r client/python_gui/requirements.txt
+```
+
+実行:
+
+```bash
+python client/python_gui/tcp_gui_client.py
+```
+
+### GUI操作
+
+- Host入力。
+- Port入力。
+- `Connect` ボタン。
+- `Disconnect` ボタン。
+- `PING`、`GET_STATUS`、`START`、`STOP`、`RESET`、`QUIT` ボタン。
+- 通信ログ表示。
+- 接続状態表示。
+
+### スレッド構成
+
+socket通信は `TcpClientWorker` が担当し、このワーカーを `QThread` 上で動かします。
+
+GUIスレッドは画面操作と表示更新だけを担当します。接続、切断、コマンド送信の要求はQtのシグナルでワーカーへ渡し、サーバ応答もシグナルでGUIへ戻します。
+
+これにより、サーバ応答待ちの間もGUIが固まりにくい構成にしています。
+
+### 1行単位の受信
+
+GUIクライアントはサーバ応答を1行単位で受信します。内部にバイトバッファを持ち、`\n` を受信した時点で1行をデコードして表示します。
+
+### Phase 5 の範囲
+
+GUIクライアントは新しいプロトコルコマンドを追加せず、C言語TCPサーバ側も変更しません。
+
 ## Phase 4: Python TCP クライアント
 
 Phase 4 では、Windows側から使える Python 製 CLI クライアントを追加しました。

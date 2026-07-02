@@ -16,10 +16,27 @@ This project follows a phase-based development approach.
 
 ### Planned
 
-- Windows GUI client
 - CAN integration
 - GitHub Actions
 - Unit tests
+
+## [0.4.0] - 2026-07-02
+
+### Added
+
+- Added a PySide6 GUI TCP client under `client/python_gui/`.
+- Added host and port inputs.
+- Added Connect and Disconnect buttons.
+- Added command buttons for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
+- Added send and receive logs in the GUI.
+- Added connection status display.
+- Added worker-thread based communication so the GUI remains responsive.
+- Added `requirements.txt` and GUI client README.
+
+### Notes
+
+- The existing TCP server protocol was not changed.
+- The existing Python CLI client remains available under `client/python/`.
 
 ## [0.3.0] - 2026-07-02
 

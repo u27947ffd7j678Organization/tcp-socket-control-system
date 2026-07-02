@@ -2,15 +2,16 @@
 
 [English README](README.en.md)
 
-Ubuntu上のC言語TCPサーバと、Windows側から接続確認できるPython CLIクライアントを含む、TCP/IP通信学習用プロジェクトです。
+Ubuntu上のC言語TCPサーバと、Windows側から接続確認できるPythonクライアントを含む、TCP/IP通信学習用プロジェクトです。
 
-現在は **Phase 4: Python TCPクライアント** まで完了しています。GUIはまだ実装していません。
+現在は **Phase 5: PySide6 GUI TCPクライアント** まで完了しています。
 
 ## システム概要
 
 ```text
 Windows PC
   client/python/tcp_client.py
+  client/python_gui/tcp_gui_client.py
         |
         | TCP/IP
         v
@@ -32,8 +33,12 @@ tcp-socket-control-system/
 |   |-- CMakeLists.txt
 |   `-- README.md
 |-- client/
-|   `-- python/
-|       |-- tcp_client.py
+|   |-- python/
+|   |   |-- tcp_client.py
+|   |   `-- README.md
+|   `-- python_gui/
+|       |-- tcp_gui_client.py
+|       |-- requirements.txt
 |       `-- README.md
 |-- docs/
 |   |-- en/
@@ -52,6 +57,7 @@ tcp-socket-control-system/
 
 - [C言語TCPサーバ](server/README.md)
 - [Python CLI TCPクライアント](client/python/README.md)
+- [PySide6 GUI TCPクライアント](client/python_gui/README.md)
 
 ## 通信プロトコル
 
@@ -79,7 +85,7 @@ QUIT
 - [x] Phase 2.5: リポジトリ公開準備
 - [x] Phase 3: C言語TCPサーバ
 - [x] Phase 4: Python CLI TCPクライアント
-- [ ] Phase 5: Windows GUI
+- [x] Phase 5: PySide6 GUI TCPクライアント
 - [ ] Phase 6: ログ保存・設定ファイル対応
 - [ ] Phase 7: GitHub Actions・単体テスト
 - [ ] Phase 8: ポートフォリオ公開整備

@@ -2,15 +2,16 @@
 
 [Japanese README](README.md)
 
-A TCP/IP communication learning project with a C TCP server for Ubuntu and a Python CLI client for Windows-side communication checks.
+A TCP/IP communication learning project with a C TCP server for Ubuntu and Python clients for Windows-side communication checks.
 
-The project is currently complete through **Phase 4: Python TCP Client**. No GUI is implemented yet.
+The project is currently complete through **Phase 5: PySide6 GUI TCP Client**.
 
 ## System Overview
 
 ```text
 Windows PC
   client/python/tcp_client.py
+  client/python_gui/tcp_gui_client.py
         |
         | TCP/IP
         v
@@ -32,8 +33,12 @@ tcp-socket-control-system/
 |   |-- CMakeLists.txt
 |   `-- README.md
 |-- client/
-|   `-- python/
-|       |-- tcp_client.py
+|   |-- python/
+|   |   |-- tcp_client.py
+|   |   `-- README.md
+|   `-- python_gui/
+|       |-- tcp_gui_client.py
+|       |-- requirements.txt
 |       `-- README.md
 |-- docs/
 |   |-- en/
@@ -52,6 +57,7 @@ tcp-socket-control-system/
 
 - [C TCP server](server/README.md)
 - [Python CLI TCP client](client/python/README.md)
+- [PySide6 GUI TCP client](client/python_gui/README.md)
 
 ## Protocol
 
@@ -79,7 +85,7 @@ See [docs/en/protocol_spec.md](docs/en/protocol_spec.md) and [docs/ja/protocol_s
 - [x] Phase 2.5: Repository preparation
 - [x] Phase 3: C TCP server
 - [x] Phase 4: Python CLI TCP client
-- [ ] Phase 5: Windows GUI
+- [x] Phase 5: PySide6 GUI TCP client
 - [ ] Phase 6: Logging and configuration
 - [ ] Phase 7: GitHub Actions and unit tests
 - [ ] Phase 8: Portfolio release

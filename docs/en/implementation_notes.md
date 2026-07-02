@@ -1,5 +1,67 @@
 # Implementation Notes
 
+## Phase 5: PySide6 GUI TCP Client
+
+Phase 5 adds a GUI TCP client using PySide6.
+
+The GUI client is located at:
+
+```text
+client/python_gui/tcp_gui_client.py
+```
+
+### Purpose
+
+- Connect to the Ubuntu C TCP server from a desktop GUI.
+- Let the user edit host and port values.
+- Send protocol commands with buttons.
+- Show send and receive logs on screen.
+- Show the current connection state.
+
+### Requirements
+
+- Python 3.10 or later.
+- PySide6.
+- The existing TCP server protocol is not changed.
+
+Install dependencies:
+
+```bash
+python -m pip install -r client/python_gui/requirements.txt
+```
+
+Run:
+
+```bash
+python client/python_gui/tcp_gui_client.py
+```
+
+### GUI Controls
+
+- Host input.
+- Port input.
+- `Connect` button.
+- `Disconnect` button.
+- Command buttons: `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, `QUIT`.
+- Communication log view.
+- Connection status label.
+
+### Threading Model
+
+Socket communication is handled by `TcpClientWorker`, which is moved to a `QThread`.
+
+The GUI thread only handles user interaction and screen updates. Connect, disconnect, and command requests are sent to the worker through Qt signals, and responses are sent back to the GUI through signals.
+
+This keeps the GUI responsive while the client waits for network operations.
+
+### Line-Based Receive
+
+The GUI client receives server responses one line at a time. It keeps an internal byte buffer and returns one decoded line when `\n` is received.
+
+### Phase Boundary
+
+The GUI client does not add new protocol commands and does not modify the C TCP server.
+
 ## Phase 4: Python TCP Client
 
 Phase 4 adds a Windows-side CLI client written in Python.
