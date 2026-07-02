@@ -4,7 +4,7 @@
 
 A C language learning project for building a small TCP/IP communication control system on Ubuntu 24.04.
 
-The project is currently in **Phase 3: TCP Server Implementation**. A basic single-client TCP server is implemented.
+The project is currently in **Phase 4: Python TCP Client**. A CLI client can connect from Windows to the Ubuntu C TCP server.
 
 ## Project Overview
 
@@ -46,6 +46,9 @@ tcp-socket-control-system/
 |   |-- en/
 |   |-- ja/
 |   `-- images/
+|-- clients/
+|   `-- python/
+|       `-- tcp_client.py
 |-- include/
 |-- src/
 |-- tests/
@@ -104,6 +107,8 @@ The server listens on TCP port `5000`.
 
 ![TCP server response check](docs/images/tcp-server-response-check.png)
 
+### Using netcat on Ubuntu
+
 Connect from another terminal on Ubuntu:
 
 ```bash
@@ -130,6 +135,27 @@ Test-NetConnection 192.168.11.54 -Port 5000
 
 For interactive testing, use `telnet` or another TCP client tool.
 
+### Using the Python Client from Windows
+
+The Python client requires Python 3.10 or later and uses only the standard library.
+
+```powershell
+python clients/python/tcp_client.py --host 192.168.11.54 --port 5000
+```
+
+After connecting, use the interactive prompt:
+
+```text
+PING
+GET_STATUS
+START
+STOP
+RESET
+QUIT
+```
+
+Press `Ctrl+C` to close the client safely. No GUI is implemented in this phase.
+
 ## Documentation
 
 - English implementation specification: [docs/en/](docs/en/)
@@ -150,7 +176,7 @@ Main documents:
 - [x] Phase 2: TCP/IP system design documents
 - [x] Phase 2.5: Repository preparation
 - [x] Phase 3: TCP server implementation
-- [ ] Phase 4: TCP client
+- [x] Phase 4: Python TCP client
 - [ ] Phase 5: Windows GUI
 - [ ] Phase 6: Logging and configuration
 - [ ] Phase 7: GitHub Actions and unit tests
@@ -158,4 +184,4 @@ Main documents:
 
 ## Current Status
 
-This is a design-first C networking learning project. The basic TCP server now follows the protocol in `docs/en/protocol_spec.md`.
+This is a design-first networking learning project. The basic TCP server follows `docs/en/protocol_spec.md`, and the Python CLI client can be used from Windows for communication checks.

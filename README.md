@@ -4,7 +4,7 @@
 
 Ubuntu 24.04 上で C 言語による TCP/IP 通信制御システムを段階的に作成する学習用プロジェクトです。
 
-現在は **Phase 3: TCP サーバ実装** の段階です。シングルクライアント対応の基本 TCP サーバを実装済みです。
+現在は **Phase 4: Python TCP クライアント** の段階です。Windows側からUbuntu上のC言語TCPサーバへ接続できるCLIクライアントを追加済みです。
 
 ## プロジェクト概要
 
@@ -48,6 +48,9 @@ tcp-socket-control-system/
 |   |-- en/
 |   |-- ja/
 |   `-- images/
+|-- clients/
+|   `-- python/
+|       `-- tcp_client.py
 |-- include/
 |-- src/
 |-- tests/
@@ -106,6 +109,8 @@ build/tcp_socket_server
 
 ![TCPサーバ応答確認](docs/images/tcp-server-response-check.png)
 
+### Ubuntu上でnetcatを使う場合
+
 Ubuntu の別ターミナルから `netcat` で接続します。
 
 ```bash
@@ -132,6 +137,27 @@ Test-NetConnection 192.168.11.54 -Port 5000
 
 対話テストには `telnet` または任意の TCP クライアントツールを使用します。
 
+### Windows側からPythonクライアントを使う場合
+
+Python 3.10以上で、標準ライブラリのみを使います。
+
+```powershell
+python clients/python/tcp_client.py --host 192.168.11.54 --port 5000
+```
+
+接続後、対話モードで以下のコマンドを入力できます。
+
+```text
+PING
+GET_STATUS
+START
+STOP
+RESET
+QUIT
+```
+
+`Ctrl+C` でクライアントを安全に終了できます。GUIはまだ実装していません。
+
 ## ドキュメント
 
 - 英語版の実装仕様: [docs/en/](docs/en/)
@@ -152,7 +178,7 @@ Test-NetConnection 192.168.11.54 -Port 5000
 - [x] Phase 2: TCP/IP システム設計書
 - [x] Phase 2.5: リポジトリ公開準備
 - [x] Phase 3: TCP サーバ実装
-- [ ] Phase 4: TCP クライアント
+- [x] Phase 4: Python TCP クライアント
 - [ ] Phase 5: Windows GUI
 - [ ] Phase 6: ログ保存・設定ファイル対応
 - [ ] Phase 7: GitHub Actions・単体テスト
@@ -160,4 +186,4 @@ Test-NetConnection 192.168.11.54 -Port 5000
 
 ## 現在の状態
 
-このリポジトリは、設計を先に整えた C ネットワーク学習プロジェクトです。現在は `docs/en/protocol_spec.md` の仕様に沿った基本 TCP サーバを実装済みです。
+このリポジトリは、設計を先に整えたネットワーク学習プロジェクトです。現在は `docs/en/protocol_spec.md` の仕様に沿った基本 TCP サーバと、Windows側から確認できるPython製CLIクライアントを実装済みです。

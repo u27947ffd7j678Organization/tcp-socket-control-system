@@ -25,6 +25,12 @@ CTestTestfile.cmake
 *.gcov
 coverage/
 
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
 # Editor and OS files
 .vscode/
 .idea/
@@ -33,4 +39,3 @@ coverage/
 *~
 .DS_Store
 Thumbs.db
-

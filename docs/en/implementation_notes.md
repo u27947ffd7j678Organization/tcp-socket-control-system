@@ -1,5 +1,96 @@
 # Implementation Notes
 
+## Phase 4: Python TCP Client
+
+Phase 4 adds a Windows-side CLI client written in Python.
+
+The client is located at:
+
+```text
+clients/python/tcp_client.py
+```
+
+### Purpose
+
+- Connect to the Ubuntu C TCP server from Windows.
+- Send protocol commands interactively.
+- Display server responses on standard output.
+- Keep the implementation simple before building a GUI.
+
+### Requirements
+
+- Python 3.10 or later.
+- Standard library only.
+- Uses the `socket` module.
+- Does not change the TCP server protocol.
+
+### Command-Line Options
+
+```bash
+python clients/python/tcp_client.py --host 192.168.11.54 --port 5000
+```
+
+Options:
+
+- `--host`: server host or IP address.
+- `--port`: server TCP port.
+
+Defaults:
+
+- `--host 127.0.0.1`
+- `--port 5000`
+
+### Interactive Flow
+
+```text
+start client
+  |
+  v
+connect to server
+  |
+  v
+read command from user
+  |
+  v
+send command + "\n"
+  |
+  v
+receive one response line
+  |
+  v
+print response
+  |
+  v
+repeat until QUIT or Ctrl+C
+```
+
+Supported command examples:
+
+```text
+PING
+GET_STATUS
+START
+STOP
+RESET
+QUIT
+```
+
+### Error Handling
+
+The client prints clear messages for common failures:
+
+- Host name resolution failure.
+- Connection refused.
+- Connection timeout.
+- Other network errors.
+- Server-side connection close.
+
+`Ctrl+C` is handled safely and closes the client without a traceback.
+
+### Phase Boundary
+
+No GUI is implemented in Phase 4. The Python client is a CLI tool for communication checks and learning.
+
 ## Overview
 
 Phase 3 adds the first working TCP server implementation.

@@ -8,11 +8,26 @@ This project follows a phase-based development approach.
 
 ### Planned
 
-- TCP client implementation
 - Windows GUI client
 - CAN integration
 - GitHub Actions
 - Unit tests
+
+## [0.3.0] - 2026-07-02
+
+### Added
+
+- Added a Python CLI TCP client for Phase 4.
+- Added `--host` and `--port` command-line options.
+- Added interactive command input for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
+- Added clear connection error messages and safe `Ctrl+C` handling.
+- Updated English and Japanese documentation with Phase 4 notes.
+
+### Notes
+
+- The client uses only the Python standard library.
+- The TCP server protocol was not changed.
+- GUI implementation remains future work.
 
 ## [0.2.0] - 2026-07-01
 

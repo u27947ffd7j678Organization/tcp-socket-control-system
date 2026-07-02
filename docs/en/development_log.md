@@ -1,5 +1,27 @@
 # Development Log
 
+## Phase 4 - Python TCP Client
+
+### Summary
+
+Added a Python CLI client for communication checks from Windows.
+
+### Added
+
+- `clients/python/tcp_client.py`.
+- `--host` and `--port` command-line options.
+- Interactive command input for the existing TCP server protocol.
+- Standard output display for server responses.
+- Safe `Ctrl+C` handling.
+- Clear connection error messages.
+- README and implementation note updates.
+
+### Notes
+
+- The client uses only the Python standard library.
+- No GUI was added in this phase.
+- The TCP server protocol was not changed.
+
 ## Phase 3 - Basic TCP Server
 
 ### Summary
