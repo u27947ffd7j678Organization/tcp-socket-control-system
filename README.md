@@ -78,6 +78,16 @@ QUIT
 
 ![TCPサーバ応答確認](docs/images/tcp-server-response-check.png)
 
+## Phase 5 GUI動作確認
+
+Connect時:
+
+![PySide6 GUI接続確認](docs/images/pyside6-gui-connect.png)
+
+全コマンド確認:
+
+![PySide6 GUI全コマンド確認](docs/images/pyside6-gui-command-check.png)
+
 ## ロードマップ
 
 - [x] Phase 1: プロジェクトの土台

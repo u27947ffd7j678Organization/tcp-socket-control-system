@@ -31,8 +31,17 @@ python client/python_gui/tcp_gui_client.py
 - Socket communication runs in a worker thread so the GUI does not freeze.
 - Server responses are received one line at a time.
 
+## Screenshots
+
+Connect check:
+
+![PySide6 GUI connection check](../../docs/images/pyside6-gui-connect.png)
+
+All command check:
+
+![PySide6 GUI all command check](../../docs/images/pyside6-gui-command-check.png)
+
 ## Notes
 
 - The existing server protocol is not changed.
 - This GUI client is separate from the CLI client in `client/python/`.
-

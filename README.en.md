@@ -78,6 +78,16 @@ See [docs/en/protocol_spec.md](docs/en/protocol_spec.md) and [docs/ja/protocol_s
 
 ![TCP server response check](docs/images/tcp-server-response-check.png)
 
+## Phase 5 GUI Check
+
+Connect check:
+
+![PySide6 GUI connection check](docs/images/pyside6-gui-connect.png)
+
+All command check:
+
+![PySide6 GUI all command check](docs/images/pyside6-gui-command-check.png)
+
 ## Roadmap
 
 - [x] Phase 1: Project skeleton
