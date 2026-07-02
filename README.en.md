@@ -88,6 +88,12 @@ All command check:
 
 ![PySide6 GUI all command check](docs/images/pyside6-gui-command-check.png)
 
+## Phase 6 GUI Status Monitor Check
+
+The GUI displays `State`, `Temperature`, `Humidity`, and `Last Update` parsed from the `GET_STATUS` response.
+
+![PySide6 GUI status monitor check](docs/images/pyside6-gui-status-monitor-phase6.png)
+
 ## Processing Flow
 
 ### Server Flowchart

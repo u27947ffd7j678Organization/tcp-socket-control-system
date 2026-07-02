@@ -61,6 +61,10 @@ All command check:
 
 ![PySide6 GUI all command check](../../docs/images/pyside6-gui-command-check.png)
 
+Status monitor check:
+
+![PySide6 GUI status monitor check](../../docs/images/pyside6-gui-status-monitor-phase6.png)
+
 ## Notes
 
 - The existing server protocol is not changed.

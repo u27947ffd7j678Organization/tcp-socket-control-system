@@ -88,6 +88,12 @@ Connect時:
 
 ![PySide6 GUI全コマンド確認](docs/images/pyside6-gui-command-check.png)
 
+## Phase 6 GUIステータスモニタ確認
+
+`GET_STATUS` の応答から `State`、`Temperature`、`Humidity`、`Last Update` を表示しています。
+
+![PySide6 GUIステータスモニタ確認](docs/images/pyside6-gui-status-monitor-phase6.png)
+
 ## 処理フロー
 
 ### サーバ側フローチャート
