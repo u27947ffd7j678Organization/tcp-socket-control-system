@@ -1,5 +1,73 @@
 # 実装メモ
 
+## Phase 6: GUIステータスモニタ
+
+Phase 6 では、PySide6 GUIクライアントで `STATUS` 応答を解析し、専用の表示欄に値を表示するように改善しました。
+
+### 目的
+
+- 生の通信ログは残す。
+- `GET_STATUS` の応答から `STATE`、`TEMP`、`HUMI` を取り出す。
+- サーバ状態、温度、湿度、最終更新時刻を表示する。
+- サーバ側プロトコルは変更しない。
+
+### パーサ
+
+追加したヘルパー関数:
+
+```text
+parse_status_response(response: str) -> dict[str, str] | None
+```
+
+対応する応答例:
+
+```text
+STATUS STATE=RUN TEMP=25.4 HUMI=52.1
+```
+
+解析結果:
+
+```text
+STATE=RUN
+TEMP=25.4
+HUMI=52.1
+```
+
+不正または不足のある `STATUS` 応答では `None` を返します。
+
+### GUI更新フロー
+
+```text
+TcpClientWorker が応答を受信
+  |
+  v
+received signal
+  |
+  v
+MainWindow._handle_received()
+  |
+  +-- 生の受信ログを表示
+  |
+  +-- STATUS で始まる応答なら解析
+        |
+        v
+      parse_status_response()
+        |
+        v
+      MainWindow._update_status_monitor()
+```
+
+Status Monitorを更新するのは、正常に解析できた `STATUS` 応答だけです。`PONG`、`OK START`、`OK STOP`、`OK RESET`、`OK BYE`、`ERROR UNKNOWN_COMMAND` などは通信ログに残すだけで、専用表示欄は更新しません。
+
+### Status Monitorの表示項目
+
+- State
+- Temperature
+- Humidity
+- Last Update
+
+このフェーズでは自動ポーリングは追加していません。既存の `GET_STATUS` ボタンを手動更新操作として使います。
+
 ## Phase 5: PySide6 GUI TCP クライアント
 
 Phase 5 では、PySide6 を使った GUI TCP クライアントを追加しました。

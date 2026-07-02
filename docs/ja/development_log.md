@@ -1,5 +1,25 @@
 # 開発ログ
 
+## Phase 6 - GUIステータスモニタ
+
+### 概要
+
+PySide6 GUIクライアントに、構造化されたステータス表示欄を追加しました。
+
+### 追加内容
+
+- `parse_status_response()` ヘルパー。
+- Status Monitorグループボックス。
+- state、temperature、humidity、last update の専用表示欄。
+- `STATUS` 応答からの表示更新処理。
+- 不正な `STATUS` 応答に対する警告ログ。
+
+### メモ
+
+- 既存の送信ログ・受信ログは残しています。
+- TCPサーバ側のプロトコルは変更していません。
+- 自動ポーリングは追加していません。
+
 ## Phase 5 - PySide6 GUI TCP クライアント
 
 ### 概要

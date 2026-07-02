@@ -4,7 +4,7 @@
 
 Ubuntu上のC言語TCPサーバと、Windows側から接続確認できるPythonクライアントを含む、TCP/IP通信学習用プロジェクトです。
 
-現在は **Phase 5: PySide6 GUI TCPクライアント** まで完了しています。
+現在は **Phase 6: GUIステータスモニタ表示** まで完了しています。
 
 ## システム概要
 
@@ -152,13 +152,17 @@ flowchart TD
     C18 --> C19["socket.sendall(command + newline)"]
     C19 --> C20["TcpClientWorker._receive_line()"]
     C20 --> C21["received signal"]
-    C21 --> C22["MainWindow._append_log()"]
-
-    C22 --> C23{"QUIT?"}
-    C23 -->|No| C15
-    C23 -->|Yes| C24["TcpClientWorker._close_socket()"]
-    C24 --> C25["disconnected signal"]
-    C25 --> C26["画面状態を Disconnected に更新"]
+    C21 --> C22["MainWindow._handle_received()"]
+    C22 --> C23["MainWindow._append_log()"]
+    C23 --> C24{"STATUS response?"}
+    C24 -->|Yes| C25["parse_status_response()"]
+    C25 --> C26["MainWindow._update_status_monitor()"]
+    C24 -->|No| C27{"QUIT?"}
+    C26 --> C27
+    C27 -->|No| C15
+    C27 -->|Yes| C28["TcpClientWorker._close_socket()"]
+    C28 --> C29["disconnected signal"]
+    C29 --> C30["画面状態を Disconnected に更新"]
 ```
 
 ### 通信シーケンス図
@@ -192,7 +196,9 @@ sequenceDiagram
     Handler-->>Server: "STATUS STATE=STOP TEMP=25.4 HUMI=52.1\n"
     Server-->>Client: status response
     Client-->>GUI: received(status response)
-    GUI->>GUI: append receive log
+    GUI->>GUI: _handle_received()
+    GUI->>GUI: parse_status_response()
+    GUI->>GUI: _update_status_monitor()
 
     GUI->>Client: SET_LED example
     Client->>Server: "SET_LED\n"
@@ -220,7 +226,7 @@ sequenceDiagram
 - [x] Phase 3: C言語TCPサーバ
 - [x] Phase 4: Python CLI TCPクライアント
 - [x] Phase 5: PySide6 GUI TCPクライアント
-- [ ] Phase 6: ログ保存・設定ファイル対応
+- [x] Phase 6: GUIステータスモニタ表示
 - [ ] Phase 7: GitHub Actions・単体テスト
 - [ ] Phase 8: ポートフォリオ公開整備
 

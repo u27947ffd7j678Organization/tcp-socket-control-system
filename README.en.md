@@ -4,7 +4,7 @@
 
 A TCP/IP communication learning project with a C TCP server for Ubuntu and Python clients for Windows-side communication checks.
 
-The project is currently complete through **Phase 5: PySide6 GUI TCP Client**.
+The project is currently complete through **Phase 6: GUI Status Monitor**.
 
 ## System Overview
 
@@ -152,13 +152,17 @@ flowchart TD
     C18 --> C19["socket.sendall(command + newline)"]
     C19 --> C20["TcpClientWorker._receive_line()"]
     C20 --> C21["received signal"]
-    C21 --> C22["MainWindow._append_log()"]
-
-    C22 --> C23{"QUIT?"}
-    C23 -->|No| C15
-    C23 -->|Yes| C24["TcpClientWorker._close_socket()"]
-    C24 --> C25["disconnected signal"]
-    C25 --> C26["Update UI to Disconnected"]
+    C21 --> C22["MainWindow._handle_received()"]
+    C22 --> C23["MainWindow._append_log()"]
+    C23 --> C24{"STATUS response?"}
+    C24 -->|Yes| C25["parse_status_response()"]
+    C25 --> C26["MainWindow._update_status_monitor()"]
+    C24 -->|No| C27{"QUIT?"}
+    C26 --> C27
+    C27 -->|No| C15
+    C27 -->|Yes| C28["TcpClientWorker._close_socket()"]
+    C28 --> C29["disconnected signal"]
+    C29 --> C30["Update UI to Disconnected"]
 ```
 
 ### Communication Sequence
@@ -192,7 +196,9 @@ sequenceDiagram
     Handler-->>Server: "STATUS STATE=STOP TEMP=25.4 HUMI=52.1\n"
     Server-->>Client: status response
     Client-->>GUI: received(status response)
-    GUI->>GUI: append receive log
+    GUI->>GUI: _handle_received()
+    GUI->>GUI: parse_status_response()
+    GUI->>GUI: _update_status_monitor()
 
     GUI->>Client: SET_LED example
     Client->>Server: "SET_LED\n"
@@ -220,7 +226,7 @@ sequenceDiagram
 - [x] Phase 3: C TCP server
 - [x] Phase 4: Python CLI TCP client
 - [x] Phase 5: PySide6 GUI TCP client
-- [ ] Phase 6: Logging and configuration
+- [x] Phase 6: GUI status monitor
 - [ ] Phase 7: GitHub Actions and unit tests
 - [ ] Phase 8: Portfolio release
 

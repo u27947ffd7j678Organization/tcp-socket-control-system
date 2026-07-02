@@ -1,5 +1,25 @@
 # Development Log
 
+## Phase 6 - GUI Status Monitor
+
+### Summary
+
+Improved the PySide6 GUI client with structured status display fields.
+
+### Added
+
+- `parse_status_response()` helper.
+- Status Monitor group box.
+- Dedicated display fields for state, temperature, humidity, and last update time.
+- Status update flow from `STATUS` responses.
+- Warning log for malformed `STATUS` responses.
+
+### Notes
+
+- Raw send and receive logs remain unchanged.
+- The TCP server protocol was not changed.
+- No automatic polling was added.
+
 ## Phase 5 - PySide6 GUI TCP Client
 
 ### Summary

@@ -1,5 +1,73 @@
 # Implementation Notes
 
+## Phase 6: GUI Status Monitor
+
+Phase 6 improves the PySide6 GUI client by parsing `STATUS` responses and showing values in dedicated fields.
+
+### Purpose
+
+- Keep raw communication logs.
+- Extract `STATE`, `TEMP`, and `HUMI` from `GET_STATUS` responses.
+- Display server state, temperature, humidity, and last update time.
+- Keep the server protocol unchanged.
+
+### Parser
+
+The helper function is:
+
+```text
+parse_status_response(response: str) -> dict[str, str] | None
+```
+
+Accepted response example:
+
+```text
+STATUS STATE=RUN TEMP=25.4 HUMI=52.1
+```
+
+Parsed result:
+
+```text
+STATE=RUN
+TEMP=25.4
+HUMI=52.1
+```
+
+Invalid or incomplete `STATUS` responses return `None`.
+
+### GUI Update Flow
+
+```text
+TcpClientWorker receives response
+  |
+  v
+received signal
+  |
+  v
+MainWindow._handle_received()
+  |
+  +-- append raw receive log
+  |
+  +-- if response starts with STATUS
+        |
+        v
+      parse_status_response()
+        |
+        v
+      MainWindow._update_status_monitor()
+```
+
+Only valid `STATUS` responses update the Status Monitor. Other responses such as `PONG`, `OK START`, `OK STOP`, `OK RESET`, `OK BYE`, and `ERROR UNKNOWN_COMMAND` remain in the communication log only.
+
+### Status Monitor Fields
+
+- State
+- Temperature
+- Humidity
+- Last Update
+
+No automatic polling is added in this phase. The existing `GET_STATUS` button is the manual refresh operation.
+
 ## Phase 5: PySide6 GUI TCP Client
 
 Phase 5 adds a GUI TCP client using PySide6.

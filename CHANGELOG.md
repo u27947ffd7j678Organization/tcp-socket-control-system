@@ -6,6 +6,11 @@ This project follows a phase-based development approach.
 
 ## [Unreleased]
 
+### Added
+
+- Added structured status monitor to the PySide6 GUI client.
+- Parsed `STATUS` responses and displayed state, temperature, humidity, and last update time.
+
 ### Changed
 
 - Reorganized the repository into `server/` and `client/` directories.

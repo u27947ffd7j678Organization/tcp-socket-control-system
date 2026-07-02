@@ -6,6 +6,7 @@ from __future__ import annotations
 import socket
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 
 from PySide6.QtCore import QObject, QThread, Qt, Signal, Slot
 from PySide6.QtWidgets import (
@@ -29,6 +30,37 @@ DEFAULT_HOST = "192.168.11.54"
 DEFAULT_PORT = 5000
 RECV_BUFFER_SIZE = 4096
 COMMANDS = ("PING", "GET_STATUS", "START", "STOP", "RESET", "QUIT")
+
+
+def parse_status_response(response: str) -> dict[str, str] | None:
+    """Parse a STATUS response such as: STATUS STATE=RUN TEMP=25.4 HUMI=52.1."""
+    parts = response.strip().split()
+    if not parts or parts[0] != "STATUS":
+        return None
+
+    values: dict[str, str] = {}
+    for part in parts[1:]:
+        if "=" not in part:
+            return None
+        key, value = part.split("=", 1)
+        if not key or not value:
+            return None
+        values[key] = value
+
+    required_keys = {"STATE", "TEMP", "HUMI"}
+    if not required_keys.issubset(values):
+        return None
+
+    if values["STATE"] not in {"RUN", "STOP"}:
+        return None
+
+    try:
+        float(values["TEMP"])
+        float(values["HUMI"])
+    except ValueError:
+        return None
+
+    return values
 
 
 @dataclass(frozen=True)
@@ -196,6 +228,22 @@ class MainWindow(QMainWindow):
             self.command_buttons[command] = button
             command_layout.addWidget(button)
 
+        status_monitor_group = QGroupBox("Status Monitor", central)
+        status_monitor_layout = QGridLayout(status_monitor_group)
+        self.server_state_value = QLabel("--", status_monitor_group)
+        self.temperature_value = QLabel("--", status_monitor_group)
+        self.humidity_value = QLabel("--", status_monitor_group)
+        self.last_update_value = QLabel("--", status_monitor_group)
+
+        status_monitor_layout.addWidget(QLabel("State", status_monitor_group), 0, 0)
+        status_monitor_layout.addWidget(self.server_state_value, 0, 1)
+        status_monitor_layout.addWidget(QLabel("Temperature", status_monitor_group), 1, 0)
+        status_monitor_layout.addWidget(self.temperature_value, 1, 1)
+        status_monitor_layout.addWidget(QLabel("Humidity", status_monitor_group), 2, 0)
+        status_monitor_layout.addWidget(self.humidity_value, 2, 1)
+        status_monitor_layout.addWidget(QLabel("Last Update", status_monitor_group), 3, 0)
+        status_monitor_layout.addWidget(self.last_update_value, 3, 1)
+
         log_group = QGroupBox("Communication Log", central)
         log_layout = QVBoxLayout(log_group)
         self.log_view = QPlainTextEdit(log_group)
@@ -204,6 +252,7 @@ class MainWindow(QMainWindow):
 
         root_layout.addWidget(connection_group)
         root_layout.addWidget(command_group)
+        root_layout.addWidget(status_monitor_group)
         root_layout.addWidget(log_group, stretch=1)
         self.setCentralWidget(central)
 
@@ -221,7 +270,7 @@ class MainWindow(QMainWindow):
         self._worker.connected.connect(self._on_connected)
         self._worker.disconnected.connect(self._on_disconnected)
         self._worker.sent.connect(lambda command: self._append_log("SEND", command))
-        self._worker.received.connect(lambda response: self._append_log("RECV", response))
+        self._worker.received.connect(self._handle_received)
         self._worker.error.connect(self._on_error)
 
     def _request_connect(self) -> None:
@@ -254,6 +303,26 @@ class MainWindow(QMainWindow):
         self._append_log("ERROR", message)
         QMessageBox.warning(self, "TCP Client Error", message)
 
+    @Slot(str)
+    def _handle_received(self, response: str) -> None:
+        self._append_log("RECV", response)
+
+        if not response.startswith("STATUS"):
+            return
+
+        status = parse_status_response(response)
+        if status is None:
+            self._append_log("WARN", "Could not parse STATUS response")
+            return
+
+        self._update_status_monitor(status)
+
+    def _update_status_monitor(self, status: dict[str, str]) -> None:
+        self.server_state_value.setText(status["STATE"])
+        self.temperature_value.setText(f"{status['TEMP']} \N{DEGREE SIGN}C")
+        self.humidity_value.setText(f"{status['HUMI']} %")
+        self.last_update_value.setText(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
     def _set_connected(self, connected: bool) -> None:
         self.host_edit.setEnabled(not connected)
         self.port_spin.setEnabled(not connected)
@@ -279,4 +348,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
