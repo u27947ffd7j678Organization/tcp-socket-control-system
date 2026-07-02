@@ -88,6 +88,130 @@ All command check:
 
 ![PySide6 GUI all command check](docs/images/pyside6-gui-command-check.png)
 
+## Processing Flow
+
+### Server Flowchart
+
+This diagram shows the C TCP server flow from startup to client connection, command handling, response sending, and shutdown.
+
+```mermaid
+flowchart TD
+    S1["main()"] --> S2["app_state_init()"]
+    S2 --> S3["server_run()"]
+    S3 --> S4["create_listen_socket()"]
+    S4 --> S5["socket() / bind() / listen()"]
+    S5 --> S6["accept()"]
+    S6 --> S7["recv()"]
+    S7 --> S8["Split into command lines"]
+    S8 --> S9["protocol_handle_command()"]
+
+    S9 --> S10{"Command?"}
+    S10 -->|PING| S11["PONG"]
+    S10 -->|GET_STATUS| S12["STATUS STATE=..."]
+    S10 -->|START / STOP / RESET| S13["Update AppState + OK"]
+    S10 -->|QUIT| S14["OK BYE"]
+    S10 -->|Unknown| S15["ERROR UNKNOWN_COMMAND"]
+
+    S11 --> S16["send_all()"]
+    S12 --> S16
+    S13 --> S16
+    S14 --> S16
+    S15 --> S16
+
+    S16 --> S17{"QUIT or disconnected?"}
+    S17 -->|No| S7
+    S17 -->|Yes| S18["close(client_fd) / close(server_fd)"]
+    S18 --> S19["Server stopped"]
+```
+
+### PySide6 Client Flowchart
+
+`MainWindow` handles GUI operations, while `TcpClientWorker` handles socket communication on a `QThread` so the GUI stays responsive.
+
+```mermaid
+flowchart TD
+    C1["main()"] --> C2["QApplication / MainWindow"]
+    C2 --> C3["MainWindow._build_ui()"]
+    C3 --> C4["MainWindow._connect_signals()"]
+    C4 --> C5["Move TcpClientWorker to QThread"]
+
+    C5 --> C6["Enter Host / Port"]
+    C6 --> C7["Connect clicked"]
+    C7 --> C8["MainWindow._request_connect()"]
+    C8 --> C9["connect_requested signal"]
+    C9 --> C10["TcpClientWorker.connect_to_server()"]
+    C10 --> C11["socket.create_connection()"]
+    C11 --> C12["connected signal"]
+    C12 --> C13["MainWindow._on_connected()"]
+    C13 --> C14["Update UI to Connected"]
+
+    C14 --> C15["Command button clicked"]
+    C15 --> C16["MainWindow._send_command()"]
+    C16 --> C17["command_requested signal"]
+    C17 --> C18["TcpClientWorker.send_command()"]
+    C18 --> C19["socket.sendall(command + newline)"]
+    C19 --> C20["TcpClientWorker._receive_line()"]
+    C20 --> C21["received signal"]
+    C21 --> C22["MainWindow._append_log()"]
+
+    C22 --> C23{"QUIT?"}
+    C23 -->|No| C15
+    C23 -->|Yes| C24["TcpClientWorker._close_socket()"]
+    C24 --> C25["disconnected signal"]
+    C25 --> C26["Update UI to Disconnected"]
+```
+
+### Communication Sequence
+
+This sequence shows the relationship between the PySide6 GUI, TCP worker, C server, and command handler. `SET_LED` is shown as an unsupported command example.
+
+```mermaid
+sequenceDiagram
+    participant GUI as PySide6 GUI
+    participant Client as TCP Client Worker
+    participant Server as TCP Server
+    participant Handler as Command Handler
+
+    GUI->>Client: Connect clicked
+    Client->>Server: TCP CONNECT
+    Server-->>Client: accept()
+    Client-->>GUI: connected signal
+    GUI->>GUI: status = Connected
+
+    GUI->>Client: PING button
+    Client->>Server: "PING\n"
+    Server->>Handler: protocol_handle_command("PING")
+    Handler-->>Server: "PONG\n"
+    Server-->>Client: "PONG\n"
+    Client-->>GUI: received("PONG")
+    GUI->>GUI: append receive log
+
+    GUI->>Client: GET_STATUS button
+    Client->>Server: "GET_STATUS\n"
+    Server->>Handler: protocol_handle_command("GET_STATUS")
+    Handler-->>Server: "STATUS STATE=STOP TEMP=25.4 HUMI=52.1\n"
+    Server-->>Client: status response
+    Client-->>GUI: received(status response)
+    GUI->>GUI: append receive log
+
+    GUI->>Client: SET_LED example
+    Client->>Server: "SET_LED\n"
+    Server->>Handler: protocol_handle_command("SET_LED")
+    Handler-->>Server: "ERROR UNKNOWN_COMMAND\n"
+    Server-->>Client: error response
+    Client-->>GUI: received("ERROR UNKNOWN_COMMAND")
+    GUI->>GUI: append receive log
+
+    GUI->>Client: QUIT button
+    Client->>Server: "QUIT\n"
+    Server->>Handler: protocol_handle_command("QUIT")
+    Handler-->>Server: "OK BYE\n"
+    Server-->>Client: "OK BYE\n"
+    Server->>Server: close sockets
+    Client-->>GUI: disconnected signal
+    GUI->>GUI: status = Disconnected
+```
+
 ## Roadmap
 
 - [x] Phase 1: Project skeleton
