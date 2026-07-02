@@ -8,7 +8,7 @@ Added a Python CLI client for communication checks from Windows.
 
 ### Added
 
-- `clients/python/tcp_client.py`.
+- `client/python/tcp_client.py`.
 - `--host` and `--port` command-line options.
 - Interactive command input for the existing TCP server protocol.
 - Standard output display for server responses.

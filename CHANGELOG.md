@@ -6,6 +6,14 @@ This project follows a phase-based development approach.
 
 ## [Unreleased]
 
+### Changed
+
+- Reorganized the repository into `server/` and `client/` directories.
+- Moved the C TCP server implementation under `server/`.
+- Moved the Python CLI client to `client/python/`.
+- Split detailed usage into `server/README.md` and `client/python/README.md`.
+- Simplified the root README as a system overview.
+
 ### Planned
 
 - Windows GUI client

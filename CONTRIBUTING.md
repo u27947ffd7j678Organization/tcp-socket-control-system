@@ -24,7 +24,7 @@ cmake --build build
 Start the server:
 
 ```bash
-./build/tcp_socket_server
+./build/server/tcp_socket_server
 ```
 
 Connect from another terminal:

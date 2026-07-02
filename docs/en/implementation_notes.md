@@ -7,7 +7,7 @@ Phase 4 adds a Windows-side CLI client written in Python.
 The client is located at:
 
 ```text
-clients/python/tcp_client.py
+client/python/tcp_client.py
 ```
 
 ### Purpose
@@ -27,7 +27,7 @@ clients/python/tcp_client.py
 ### Command-Line Options
 
 ```bash
-python clients/python/tcp_client.py --host 192.168.11.54 --port 5000
+python client/python/tcp_client.py --host 192.168.11.54 --port 5000
 ```
 
 Options:
@@ -109,11 +109,11 @@ Multi-client support, threading, logging files, configuration files, authenticat
 
 | File | Role |
 |---|---|
-| `src/main.c` | Initializes application state and starts the server. |
-| `src/server.c` | Owns socket creation, bind, listen, accept, receive, send, and close. |
-| `src/protocol.c` | Trims line endings, parses commands, updates state, and creates responses. |
-| `src/app_state.c` | Stores current state and dummy sensor values. |
-| `include/*.h` | Public declarations shared between source files. |
+| `server/src/main.c` | Initializes application state and starts the server. |
+| `server/src/server.c` | Owns socket creation, bind, listen, accept, receive, send, and close. |
+| `server/src/protocol.c` | Trims line endings, parses commands, updates state, and creates responses. |
+| `server/src/app_state.c` | Stores current state and dummy sensor values. |
+| `server/include/*.h` | Public declarations shared between source files. |
 
 ## Processing Flow
 
@@ -201,7 +201,7 @@ State changes:
 ```bash
 cmake -S . -B build
 cmake --build build
-./build/tcp_socket_server
+./build/server/tcp_socket_server
 ```
 
 ## Test with Netcat

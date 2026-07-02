@@ -8,7 +8,7 @@ Windows側から通信確認できる Python 製 CLI クライアントを追加
 
 ### 追加内容
 
-- `clients/python/tcp_client.py`。
+- `client/python/tcp_client.py`。
 - `--host` と `--port` のコマンドライン引数。
 - 既存TCPサーバプロトコルに対応した対話入力。
 - サーバ応答の標準出力表示。
