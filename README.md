@@ -233,7 +233,7 @@ sequenceDiagram
 - [x] Phase 4: Python CLI TCPクライアント
 - [x] Phase 5: PySide6 GUI TCPクライアント
 - [x] Phase 6: GUIステータスモニタ表示
-- [ ] Phase 7: GitHub Actions・単体テスト
+- [x] Phase 7: GitHub Actions・単体テスト
 - [ ] Phase 8: ポートフォリオ公開整備
 
 ## ドキュメント
@@ -242,3 +242,26 @@ sequenceDiagram
 - 日本語版の公開説明: [docs/ja/](docs/ja/)
 - 変更履歴: [CHANGELOG.md](CHANGELOG.md)
 - 開発参加ルール: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## CIとテスト
+
+GitHub Actionsでpush / pull request時に以下を確認します。
+
+- CMakeによるCサーバのビルド
+- `ctest`
+- Python 3.10での`pytest`
+
+ローカルでPythonテストを実行する場合:
+
+```bash
+python -m pip install -r requirements-dev.txt
+pytest
+```
+
+CサーバのビルドとCTest:
+
+```bash
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```

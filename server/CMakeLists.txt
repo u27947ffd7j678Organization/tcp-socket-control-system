@@ -18,3 +18,6 @@ target_include_directories(tcp_socket_server PRIVATE
 
 target_link_libraries(tcp_socket_server PRIVATE project_options)
 
+add_test(NAME tcp_socket_server_build_exists
+    COMMAND ${CMAKE_COMMAND} -E echo "tcp_socket_server build target configured"
+)

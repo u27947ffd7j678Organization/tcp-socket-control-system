@@ -1,5 +1,25 @@
 # Development Log
 
+## Phase 7 - CI and Test Foundation
+
+### Summary
+
+Added the first GitHub Actions workflow and lightweight test foundation.
+
+### Added
+
+- `.github/workflows/ci.yml`.
+- CMake build check in CI.
+- `ctest` entry point.
+- `requirements-dev.txt`.
+- pytest tests for `parse_status_response()`.
+- Server-side test planning notes under `server/tests/`.
+
+### Notes
+
+- No server protocol changes were made.
+- No GUI feature changes were added in this phase.
+
 ## Phase 6 - GUI Status Monitor
 
 ### Summary

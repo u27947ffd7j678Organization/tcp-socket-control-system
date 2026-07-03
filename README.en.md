@@ -233,7 +233,7 @@ sequenceDiagram
 - [x] Phase 4: Python CLI TCP client
 - [x] Phase 5: PySide6 GUI TCP client
 - [x] Phase 6: GUI status monitor
-- [ ] Phase 7: GitHub Actions and unit tests
+- [x] Phase 7: GitHub Actions and unit tests
 - [ ] Phase 8: Portfolio release
 
 ## Documentation
@@ -242,3 +242,28 @@ sequenceDiagram
 - Japanese public documentation: [docs/ja/](docs/ja/)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 - Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## CI and Tests
+
+GitHub Actions runs on push and pull request.
+
+It checks:
+
+- C server build with CMake.
+- `ctest`.
+- `pytest` with Python 3.10.
+
+Run Python tests locally:
+
+```bash
+python -m pip install -r requirements-dev.txt
+pytest
+```
+
+Build the C server and run CTest:
+
+```bash
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+```

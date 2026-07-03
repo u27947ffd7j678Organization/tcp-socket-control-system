@@ -1,5 +1,25 @@
 # 開発ログ
 
+## Phase 7 - CIとテスト基盤
+
+### 概要
+
+最初のGitHub Actionsワークフローと、軽量なテスト基盤を追加しました。
+
+### 追加内容
+
+- `.github/workflows/ci.yml`。
+- CIでのCMakeビルド確認。
+- `ctest` の入口。
+- `requirements-dev.txt`。
+- `parse_status_response()` のpytestテスト。
+- `server/tests/` 配下のCサーバテスト方針メモ。
+
+### メモ
+
+- サーバプロトコルは変更していません。
+- このフェーズではGUI機能追加はしていません。
+
 ## Phase 6 - GUIステータスモニタ
 
 ### 概要

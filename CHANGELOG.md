@@ -8,6 +8,10 @@ This project follows a phase-based development approach.
 
 ### Added
 
+- Added GitHub Actions CI for CMake build, CTest, and pytest.
+- Added Python pytest coverage for `parse_status_response()`.
+- Added `requirements-dev.txt` for test dependencies.
+- Added server test planning notes under `server/tests/`.
 - Added structured status monitor to the PySide6 GUI client.
 - Parsed `STATUS` responses and displayed state, temperature, humidity, and last update time.
 
