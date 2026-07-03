@@ -10,6 +10,7 @@ This project follows a phase-based development approach.
 
 - Added portfolio-focused README structure for Phase 8.
 - Added final demo, system architecture, and software architecture images to the repository preview.
+- Moved the English README to `docs/en/README.md`.
 - Added GitHub Actions CI for CMake build, CTest, and pytest.
 - Added Python pytest coverage for `parse_status_response()`.
 - Added `requirements-dev.txt` for test dependencies.
@@ -24,6 +25,8 @@ This project follows a phase-based development approach.
 - Moved the Python CLI client to `client/python/`.
 - Split detailed usage into `server/README.md` and `client/python/README.md`.
 - Reorganized the root README as a professional portfolio overview.
+- Changed the root README preview to Japanese.
+- Replaced architecture images with resized versions.
 
 ### Planned
 

@@ -1,6 +1,6 @@
 # TCP Socket Control System
 
-[Main README](README.md) / [Japanese docs](docs/ja/)
+[Japanese README](../../README.md) / [Japanese docs](../ja/)
 
 ## Project Overview
 
@@ -18,7 +18,7 @@ The implementation is complete through **Phase 8: GitHub Portfolio Refinement**.
 
 ## Demo Screenshot
 
-![TCP Socket Control System demo](docs/images/pyside6-gui-status-monitor-phase6.png)
+![TCP Socket Control System demo](../images/pyside6-gui-status-monitor-phase6.png)
 
 The Windows GUI client communicates with the Linux TCP server over TCP/IP.
 
@@ -34,13 +34,13 @@ Implemented features:
 
 ## System Architecture
 
-![System architecture](docs/images/system-architecture.png)
+![System architecture](../images/system-architecture.png)
 
 The Windows 11 GUI client connects to the Ubuntu 24.04 LTS TCP server over TCP/IP. The server listens on port `5000` and responds to line-based text commands sent by the client.
 
 ## Software Architecture
 
-![Software architecture](docs/images/software-architecture.png)
+![Software architecture](../images/software-architecture.png)
 
 Main responsibilities:
 
@@ -221,6 +221,7 @@ tcp-socket-control-system/
 |       `-- README.md
 |-- docs/
 |   |-- en/
+|   |   `-- README.md
 |   |-- ja/
 |   `-- images/
 |-- server/
@@ -236,7 +237,6 @@ tcp-socket-control-system/
 |-- CHANGELOG.md
 |-- CONTRIBUTING.md
 |-- README.md
-|-- README.en.md
 |-- requirements-dev.txt
 `-- LICENSE
 ```
@@ -305,13 +305,14 @@ ctest --test-dir build --output-on-failure
 
 ## Documentation
 
-- Server details: [server/README.md](server/README.md)
-- CLI client details: [client/python/README.md](client/python/README.md)
-- GUI client details: [client/python_gui/README.md](client/python_gui/README.md)
-- Protocol specification: [docs/en/protocol_spec.md](docs/en/protocol_spec.md)
-- Japanese documentation: [docs/ja/](docs/ja/)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Contribution rules: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Japanese README: [../../README.md](../../README.md)
+- Server details: [../../server/README.md](../../server/README.md)
+- CLI client details: [../../client/python/README.md](../../client/python/README.md)
+- GUI client details: [../../client/python_gui/README.md](../../client/python_gui/README.md)
+- Protocol specification: [protocol_spec.md](protocol_spec.md)
+- Japanese documentation: [../ja/](../ja/)
+- Changelog: [../../CHANGELOG.md](../../CHANGELOG.md)
+- Contribution rules: [../../CONTRIBUTING.md](../../CONTRIBUTING.md)
 
 ## Future Extensions
 

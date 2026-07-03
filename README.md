@@ -1,57 +1,57 @@
 # TCP Socket Control System
 
-[Mirror README](README.en.md) / [Japanese docs](docs/ja/)
+[English README](docs/en/README.md) / [日本語ドキュメント](docs/ja/)
 
-## Project Overview
+## プロジェクト概要
 
-TCP Socket Control System is a portfolio project that demonstrates TCP/IP communication between a Linux C server and a Windows Python client.
+TCP Socket Control System は、Linux 上の C 言語 TCP サーバと、Windows 上の Python GUI クライアントが TCP/IP で通信するポートフォリオ用プロジェクトです。
 
-The system includes:
+このプロジェクトでは、以下を実装しています。
 
-- A TCP socket server implemented in C on Ubuntu.
-- A PySide6 GUI client implemented in Python on Windows.
-- A command protocol for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
-- A GUI status monitor that displays `STATE`, `TEMP`, and `HUMI` values received from the server.
-- GitHub Actions CI for CMake build checks, CTest, and Python unit tests.
+- Ubuntu 上で動作する C 言語 TCP Socket Server
+- Windows 上で動作する PySide6 GUI Client
+- `PING`、`GET_STATUS`、`START`、`STOP`、`RESET`、`QUIT` のテキストベース通信プロトコル
+- サーバ応答から `STATE`、`TEMP`、`HUMI` を取り出して表示する Status Monitor
+- CMake ビルド、CTest、pytest を実行する GitHub Actions CI
 
-The implementation is complete through **Phase 8: GitHub Portfolio Refinement**.
+現在は **Phase 8: GitHub Portfolio Refinement** まで完了しています。
 
-## Demo Screenshot
+## デモ画面
 
 ![TCP Socket Control System demo](docs/images/pyside6-gui-status-monitor-phase6.png)
 
-The Windows GUI client communicates with the Linux TCP server over TCP/IP.
+Windows 側の GUI クライアントから、Linux 側の TCP サーバへ TCP/IP で接続して通信しています。
 
-Implemented features:
+実装済みの機能:
 
-- TCP connection and disconnection.
-- `PING` / `PONG` communication.
-- `GET_STATUS` response parsing.
-- `START`, `STOP`, and `RESET` commands.
-- `QUIT` command handling.
-- Status Monitor.
-- Communication Log.
+- TCP 接続 / 切断
+- `PING` / `PONG`
+- `GET_STATUS` 応答の解析
+- `START` / `STOP` / `RESET`
+- `QUIT`
+- Status Monitor
+- Communication Log
 
-## System Architecture
+## システム構成
 
 ![System architecture](docs/images/system-architecture.png)
 
-The Windows 11 GUI client connects to the Ubuntu 24.04 LTS TCP server over TCP/IP. The server listens on port `5000` and responds to line-based text commands sent by the client.
+Windows 11 上の GUI クライアントが、Ubuntu 24.04 LTS 上の TCP サーバへ TCP/IP で接続します。サーバは port `5000` で待ち受け、クライアントから送信された行単位のテキストコマンドに応答します。
 
-## Software Architecture
+## ソフトウェア構成
 
 ![Software architecture](docs/images/software-architecture.png)
 
-Main responsibilities:
+主な責務:
 
-- `MainWindow`: GUI presentation, user interaction, Status Monitor, and Communication Log.
-- `TcpClientWorker`: connection management, command sending, response receiving, and GUI notification.
-- `TCP Socket Server`: client acceptance, command receiving, protocol parsing, AppState update, and response sending.
-- `AppState`: current server state storage for `STATE`, `TEMP`, and `HUMI`.
+- `MainWindow`: GUI 表示、ユーザー操作、Status Monitor、Communication Log
+- `TcpClientWorker`: 接続管理、コマンド送信、レスポンス受信、GUI への通知
+- `TCP Socket Server`: クライアント接続受付、コマンド受信、プロトコル解析、AppState 更新、レスポンス送信
+- `AppState`: サーバ内部状態として `STATE`、`TEMP`、`HUMI` を保持
 
-## Sequence Diagram
+## シーケンス図
 
-This sequence shows how the PySide6 GUI, TCP worker, C server, and command handler cooperate during connection and command processing. `SET_LED` is shown as an unsupported command example.
+PySide6 GUI、TCP 通信ワーカー、C サーバ、コマンド処理部の関係を示します。`SET_LED` は現行プロトコルでは未対応のコマンド例です。
 
 ```mermaid
 sequenceDiagram
@@ -102,9 +102,9 @@ sequenceDiagram
     GUI->>GUI: status = Disconnected
 ```
 
-## Flowchart
+## フローチャート
 
-The server flow shows startup, socket setup, client connection, command handling, response sending, and shutdown.
+C 言語 TCP サーバの起動、ソケット作成、クライアント接続、コマンド処理、レスポンス送信、終了までの流れです。
 
 ```mermaid
 flowchart TD
@@ -136,7 +136,7 @@ flowchart TD
     S18 --> S19["Server stopped"]
 ```
 
-The PySide6 client flow keeps socket communication in `TcpClientWorker` on a `QThread`, so the GUI remains responsive while commands are sent and responses are received.
+PySide6 クライアントは、socket 通信を `TcpClientWorker` と `QThread` 側で処理し、GUI が固まらないようにしています。
 
 ```mermaid
 flowchart TD
@@ -175,20 +175,20 @@ flowchart TD
     C29 --> C30["Update UI to Disconnected"]
 ```
 
-## Technology Stack
+## 技術スタック
 
 ### Server
 
 - C
 - POSIX Socket
 - CMake
-- Linux, tested on Ubuntu 24.04 LTS
+- Linux / Ubuntu 24.04 LTS
 
 ### Client
 
-- Python 3.10 or later
+- Python 3.10 以上
 - PySide6
-- Python standard library `socket`
+- Python 標準ライブラリ `socket`
 
 ### Development
 
@@ -203,7 +203,7 @@ flowchart TD
 - pytest
 - CTest
 
-## Directory Structure
+## ディレクトリ構成
 
 ```text
 tcp-socket-control-system/
@@ -221,6 +221,7 @@ tcp-socket-control-system/
 |       `-- README.md
 |-- docs/
 |   |-- en/
+|   |   `-- README.md
 |   |-- ja/
 |   `-- images/
 |-- server/
@@ -236,7 +237,6 @@ tcp-socket-control-system/
 |-- CHANGELOG.md
 |-- CONTRIBUTING.md
 |-- README.md
-|-- README.en.md
 |-- requirements-dev.txt
 `-- LICENSE
 ```
@@ -245,24 +245,24 @@ tcp-socket-control-system/
 
 ### Server
 
-Build the C TCP server on Linux:
+Linux 上で C TCP サーバをビルドします。
 
 ```bash
 cmake -S . -B build
 cmake --build build
 ```
 
-Run the server:
+サーバを起動します。
 
 ```bash
 ./build/server/tcp_socket_server
 ```
 
-The server listens on port `5000` by default.
+デフォルトでは port `5000` で待ち受けます。
 
 ### Python CLI Client
 
-Run the standard-library CLI client:
+標準ライブラリのみを使う CLI クライアントです。
 
 ```bash
 python client/python/tcp_client.py --host 192.168.11.54 --port 5000
@@ -270,7 +270,7 @@ python client/python/tcp_client.py --host 192.168.11.54 --port 5000
 
 ### PySide6 GUI Client
 
-Create a virtual environment and install GUI dependencies:
+仮想環境を作成し、GUI クライアントを起動します。
 
 ```bash
 cd client/python_gui
@@ -280,19 +280,19 @@ python -m pip install -r requirements.txt
 python tcp_gui_client.py
 ```
 
-On Linux or macOS, use `source .venv/bin/activate` instead of `.venv\Scripts\activate`.
+Linux または macOS では `.venv\Scripts\activate` の代わりに `source .venv/bin/activate` を使用します。
 
 ## GitHub Actions
 
-GitHub Actions runs on `push` and `pull_request`.
+`push` と `pull_request` のタイミングで GitHub Actions が実行されます。
 
-The CI workflow checks:
+CI では以下を確認します。
 
-- C server configuration and build with CMake.
-- CTest entry point.
-- Python unit tests with pytest.
+- CMake による C サーバの設定とビルド
+- CTest の実行
+- pytest による Python 単体テスト
 
-Run the same checks locally:
+ローカルで同等の確認を行う場合:
 
 ```bash
 python -m pip install -r requirements-dev.txt
@@ -303,21 +303,22 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
-## Documentation
+## ドキュメント
 
+- English README: [docs/en/README.md](docs/en/README.md)
 - Server details: [server/README.md](server/README.md)
 - CLI client details: [client/python/README.md](client/python/README.md)
 - GUI client details: [client/python_gui/README.md](client/python_gui/README.md)
 - Protocol specification: [docs/en/protocol_spec.md](docs/en/protocol_spec.md)
-- Japanese documentation: [docs/ja/](docs/ja/)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Contribution rules: [CONTRIBUTING.md](CONTRIBUTING.md)
+- 日本語ドキュメント: [docs/ja/](docs/ja/)
+- 変更履歴: [CHANGELOG.md](CHANGELOG.md)
+- 開発参加ルール: [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## Future Extensions
+## 今後の拡張候補
 
-- SocketCAN integration.
-- STM32 integration.
-- CSV logging.
-- Periodic status polling.
-- Docker support.
-- Authentication.
+- SocketCAN 連携
+- STM32 連携
+- CSV ログ保存
+- 定期ポーリング
+- Docker 対応
+- 認証機能
