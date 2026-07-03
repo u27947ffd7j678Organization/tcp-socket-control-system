@@ -1,179 +1,57 @@
 # TCP Socket Control System
 
-[Japanese README](README.md)
+[Main README](README.md) / [Japanese docs](docs/ja/)
 
-A TCP/IP communication learning project with a C TCP server for Ubuntu and Python clients for Windows-side communication checks.
+## Project Overview
 
-The project is currently complete through **Phase 6: GUI Status Monitor**.
+TCP Socket Control System is a portfolio project that demonstrates TCP/IP communication between a Linux C server and a Windows Python client.
 
-## System Overview
+The system includes:
 
-```text
-Windows PC
-  client/python/tcp_client.py
-  client/python_gui/tcp_gui_client.py
-        |
-        | TCP/IP
-        v
-Ubuntu Linux
-  build/server/tcp_socket_server
-```
+- A TCP socket server implemented in C on Ubuntu.
+- A PySide6 GUI client implemented in Python on Windows.
+- A command protocol for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
+- A GUI status monitor that displays `STATE`, `TEMP`, and `HUMI` values received from the server.
+- GitHub Actions CI for CMake build checks, CTest, and Python unit tests.
 
-The server receives line-based text commands, updates internal state, and returns responses. The client sends commands interactively from Windows.
+The implementation is complete through **Phase 8: GitHub Portfolio Refinement**.
 
-## Repository Structure
+## Demo Screenshot
 
-```text
-tcp-socket-control-system/
-|-- server/
-|   |-- include/
-|   |-- src/
-|   |-- tests/
-|   |-- scripts/
-|   |-- CMakeLists.txt
-|   `-- README.md
-|-- client/
-|   |-- python/
-|   |   |-- tcp_client.py
-|   |   `-- README.md
-|   `-- python_gui/
-|       |-- tcp_gui_client.py
-|       |-- requirements.txt
-|       `-- README.md
-|-- docs/
-|   |-- en/
-|   |-- ja/
-|   `-- images/
-|-- CMakeLists.txt
-|-- CHANGELOG.md
-|-- CONTRIBUTING.md
-|-- README.md
-|-- README.en.md
-|-- LICENSE
-`-- .gitignore
-```
+![TCP Socket Control System demo](docs/images/pyside6-gui-status-monitor-phase6.png)
 
-## Components
+The Windows GUI client communicates with the Linux TCP server over TCP/IP.
 
-- [C TCP server](server/README.md)
-- [Python CLI TCP client](client/python/README.md)
-- [PySide6 GUI TCP client](client/python_gui/README.md)
+Implemented features:
 
-## Protocol
+- TCP connection and disconnection.
+- `PING` / `PONG` communication.
+- `GET_STATUS` response parsing.
+- `START`, `STOP`, and `RESET` commands.
+- `QUIT` command handling.
+- Status Monitor.
+- Communication Log.
 
-Supported commands:
+## System Architecture
 
-```text
-PING
-GET_STATUS
-START
-STOP
-RESET
-QUIT
-```
+![System architecture](docs/images/system-architecture.png)
 
-See [docs/en/protocol_spec.md](docs/en/protocol_spec.md) and [docs/ja/protocol_spec.md](docs/ja/protocol_spec.md) for details.
+The Windows 11 GUI client connects to the Ubuntu 24.04 LTS TCP server over TCP/IP. The server listens on port `5000` and responds to line-based text commands sent by the client.
 
-## Response Check Screenshot
+## Software Architecture
 
-![TCP server response check](docs/images/tcp-server-response-check.png)
+![Software architecture](docs/images/software-architecture.png)
 
-## Phase 5 GUI Check
+Main responsibilities:
 
-Connect check:
+- `MainWindow`: GUI presentation, user interaction, Status Monitor, and Communication Log.
+- `TcpClientWorker`: connection management, command sending, response receiving, and GUI notification.
+- `TCP Socket Server`: client acceptance, command receiving, protocol parsing, AppState update, and response sending.
+- `AppState`: current server state storage for `STATE`, `TEMP`, and `HUMI`.
 
-![PySide6 GUI connection check](docs/images/pyside6-gui-connect.png)
+## Sequence Diagram
 
-All command check:
-
-![PySide6 GUI all command check](docs/images/pyside6-gui-command-check.png)
-
-## Phase 6 GUI Status Monitor Check
-
-The GUI displays `State`, `Temperature`, `Humidity`, and `Last Update` parsed from the `GET_STATUS` response.
-
-![PySide6 GUI status monitor check](docs/images/pyside6-gui-status-monitor-phase6.png)
-
-## Processing Flow
-
-### Server Flowchart
-
-This diagram shows the C TCP server flow from startup to client connection, command handling, response sending, and shutdown.
-
-```mermaid
-flowchart TD
-    S1["main()"] --> S2["app_state_init()"]
-    S2 --> S3["server_run()"]
-    S3 --> S4["create_listen_socket()"]
-    S4 --> S5["socket() / bind() / listen()"]
-    S5 --> S6["accept()"]
-    S6 --> S7["recv()"]
-    S7 --> S8["Split into command lines"]
-    S8 --> S9["protocol_handle_command()"]
-
-    S9 --> S10{"Command?"}
-    S10 -->|PING| S11["PONG"]
-    S10 -->|GET_STATUS| S12["STATUS STATE=..."]
-    S10 -->|START / STOP / RESET| S13["Update AppState + OK"]
-    S10 -->|QUIT| S14["OK BYE"]
-    S10 -->|Unknown| S15["ERROR UNKNOWN_COMMAND"]
-
-    S11 --> S16["send_all()"]
-    S12 --> S16
-    S13 --> S16
-    S14 --> S16
-    S15 --> S16
-
-    S16 --> S17{"QUIT or disconnected?"}
-    S17 -->|No| S7
-    S17 -->|Yes| S18["close(client_fd) / close(server_fd)"]
-    S18 --> S19["Server stopped"]
-```
-
-### PySide6 Client Flowchart
-
-`MainWindow` handles GUI operations, while `TcpClientWorker` handles socket communication on a `QThread` so the GUI stays responsive.
-
-```mermaid
-flowchart TD
-    C1["main()"] --> C2["QApplication / MainWindow"]
-    C2 --> C3["MainWindow._build_ui()"]
-    C3 --> C4["MainWindow._connect_signals()"]
-    C4 --> C5["Move TcpClientWorker to QThread"]
-
-    C5 --> C6["Enter Host / Port"]
-    C6 --> C7["Connect clicked"]
-    C7 --> C8["MainWindow._request_connect()"]
-    C8 --> C9["connect_requested signal"]
-    C9 --> C10["TcpClientWorker.connect_to_server()"]
-    C10 --> C11["socket.create_connection()"]
-    C11 --> C12["connected signal"]
-    C12 --> C13["MainWindow._on_connected()"]
-    C13 --> C14["Update UI to Connected"]
-
-    C14 --> C15["Command button clicked"]
-    C15 --> C16["MainWindow._send_command()"]
-    C16 --> C17["command_requested signal"]
-    C17 --> C18["TcpClientWorker.send_command()"]
-    C18 --> C19["socket.sendall(command + newline)"]
-    C19 --> C20["TcpClientWorker._receive_line()"]
-    C20 --> C21["received signal"]
-    C21 --> C22["MainWindow._handle_received()"]
-    C22 --> C23["MainWindow._append_log()"]
-    C23 --> C24{"STATUS response?"}
-    C24 -->|Yes| C25["parse_status_response()"]
-    C25 --> C26["MainWindow._update_status_monitor()"]
-    C24 -->|No| C27{"QUIT?"}
-    C26 --> C27
-    C27 -->|No| C15
-    C27 -->|Yes| C28["TcpClientWorker._close_socket()"]
-    C28 --> C29["disconnected signal"]
-    C29 --> C30["Update UI to Disconnected"]
-```
-
-### Communication Sequence
-
-This sequence shows the relationship between the PySide6 GUI, TCP worker, C server, and command handler. `SET_LED` is shown as an unsupported command example.
+This sequence shows how the PySide6 GUI, TCP worker, C server, and command handler cooperate during connection and command processing. `SET_LED` is shown as an unsupported command example.
 
 ```mermaid
 sequenceDiagram
@@ -224,46 +102,222 @@ sequenceDiagram
     GUI->>GUI: status = Disconnected
 ```
 
-## Roadmap
+## Flowchart
 
-- [x] Phase 1: Project skeleton
-- [x] Phase 2: TCP/IP system design documents
-- [x] Phase 2.5: Repository preparation
-- [x] Phase 3: C TCP server
-- [x] Phase 4: Python CLI TCP client
-- [x] Phase 5: PySide6 GUI TCP client
-- [x] Phase 6: GUI status monitor
-- [x] Phase 7: GitHub Actions and unit tests
-- [ ] Phase 8: Portfolio release
+The server flow shows startup, socket setup, client connection, command handling, response sending, and shutdown.
 
-## Documentation
+```mermaid
+flowchart TD
+    S1["main()"] --> S2["app_state_init()"]
+    S2 --> S3["server_run()"]
+    S3 --> S4["create_listen_socket()"]
+    S4 --> S5["socket() / bind() / listen()"]
+    S5 --> S6["accept()"]
+    S6 --> S7["recv()"]
+    S7 --> S8["Split into command lines"]
+    S8 --> S9["protocol_handle_command()"]
 
-- English implementation specification: [docs/en/](docs/en/)
-- Japanese public documentation: [docs/ja/](docs/ja/)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+    S9 --> S10{"Command?"}
+    S10 -->|PING| S11["PONG"]
+    S10 -->|GET_STATUS| S12["STATUS STATE=..."]
+    S10 -->|START / STOP / RESET| S13["Update AppState + OK"]
+    S10 -->|QUIT| S14["OK BYE"]
+    S10 -->|Unknown| S15["ERROR UNKNOWN_COMMAND"]
 
-## CI and Tests
+    S11 --> S16["send_all()"]
+    S12 --> S16
+    S13 --> S16
+    S14 --> S16
+    S15 --> S16
 
-GitHub Actions runs on push and pull request.
-
-It checks:
-
-- C server build with CMake.
-- `ctest`.
-- `pytest` with Python 3.10.
-
-Run Python tests locally:
-
-```bash
-python -m pip install -r requirements-dev.txt
-pytest
+    S16 --> S17{"QUIT or disconnected?"}
+    S17 -->|No| S7
+    S17 -->|Yes| S18["close(client_fd) / close(server_fd)"]
+    S18 --> S19["Server stopped"]
 ```
 
-Build the C server and run CTest:
+The PySide6 client flow keeps socket communication in `TcpClientWorker` on a `QThread`, so the GUI remains responsive while commands are sent and responses are received.
+
+```mermaid
+flowchart TD
+    C1["main()"] --> C2["QApplication / MainWindow"]
+    C2 --> C3["MainWindow._build_ui()"]
+    C3 --> C4["MainWindow._connect_signals()"]
+    C4 --> C5["Move TcpClientWorker to QThread"]
+
+    C5 --> C6["Enter Host / Port"]
+    C6 --> C7["Connect clicked"]
+    C7 --> C8["MainWindow._request_connect()"]
+    C8 --> C9["connect_requested signal"]
+    C9 --> C10["TcpClientWorker.connect_to_server()"]
+    C10 --> C11["socket.create_connection()"]
+    C11 --> C12["connected signal"]
+    C12 --> C13["MainWindow._on_connected()"]
+    C13 --> C14["Update UI to Connected"]
+
+    C14 --> C15["Command button clicked"]
+    C15 --> C16["MainWindow._send_command()"]
+    C16 --> C17["command_requested signal"]
+    C17 --> C18["TcpClientWorker.send_command()"]
+    C18 --> C19["socket.sendall(command + newline)"]
+    C19 --> C20["TcpClientWorker._receive_line()"]
+    C20 --> C21["received signal"]
+    C21 --> C22["MainWindow._handle_received()"]
+    C22 --> C23["MainWindow._append_log()"]
+    C23 --> C24{"STATUS response?"}
+    C24 -->|Yes| C25["parse_status_response()"]
+    C25 --> C26["MainWindow._update_status_monitor()"]
+    C24 -->|No| C27{"QUIT?"}
+    C26 --> C27
+    C27 -->|No| C15
+    C27 -->|Yes| C28["TcpClientWorker._close_socket()"]
+    C28 --> C29["disconnected signal"]
+    C29 --> C30["Update UI to Disconnected"]
+```
+
+## Technology Stack
+
+### Server
+
+- C
+- POSIX Socket
+- CMake
+- Linux, tested on Ubuntu 24.04 LTS
+
+### Client
+
+- Python 3.10 or later
+- PySide6
+- Python standard library `socket`
+
+### Development
+
+- Git
+- GitHub
+- VS Code
+- SSH
+
+### CI
+
+- GitHub Actions
+- pytest
+- CTest
+
+## Directory Structure
+
+```text
+tcp-socket-control-system/
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml
+|-- client/
+|   |-- python/
+|   |   |-- tcp_client.py
+|   |   `-- README.md
+|   `-- python_gui/
+|       |-- tcp_gui_client.py
+|       |-- status_parser.py
+|       |-- requirements.txt
+|       `-- README.md
+|-- docs/
+|   |-- en/
+|   |-- ja/
+|   `-- images/
+|-- server/
+|   |-- include/
+|   |-- scripts/
+|   |-- src/
+|   |-- tests/
+|   |-- CMakeLists.txt
+|   `-- README.md
+|-- tests/
+|   `-- python/
+|-- CMakeLists.txt
+|-- CHANGELOG.md
+|-- CONTRIBUTING.md
+|-- README.md
+|-- README.en.md
+|-- requirements-dev.txt
+`-- LICENSE
+```
+
+## Build & Run
+
+### Server
+
+Build the C TCP server on Linux:
 
 ```bash
 cmake -S . -B build
 cmake --build build
+```
+
+Run the server:
+
+```bash
+./build/server/tcp_socket_server
+```
+
+The server listens on port `5000` by default.
+
+### Python CLI Client
+
+Run the standard-library CLI client:
+
+```bash
+python client/python/tcp_client.py --host 192.168.11.54 --port 5000
+```
+
+### PySide6 GUI Client
+
+Create a virtual environment and install GUI dependencies:
+
+```bash
+cd client/python_gui
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python tcp_gui_client.py
+```
+
+On Linux or macOS, use `source .venv/bin/activate` instead of `.venv\Scripts\activate`.
+
+## GitHub Actions
+
+GitHub Actions runs on `push` and `pull_request`.
+
+The CI workflow checks:
+
+- C server configuration and build with CMake.
+- CTest entry point.
+- Python unit tests with pytest.
+
+Run the same checks locally:
+
+```bash
+python -m pip install -r requirements-dev.txt
+pytest
+
+cmake -S . -B build
+cmake --build build
 ctest --test-dir build --output-on-failure
 ```
+
+## Documentation
+
+- Server details: [server/README.md](server/README.md)
+- CLI client details: [client/python/README.md](client/python/README.md)
+- GUI client details: [client/python_gui/README.md](client/python_gui/README.md)
+- Protocol specification: [docs/en/protocol_spec.md](docs/en/protocol_spec.md)
+- Japanese documentation: [docs/ja/](docs/ja/)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Contribution rules: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Future Extensions
+
+- SocketCAN integration.
+- STM32 integration.
+- CSV logging.
+- Periodic status polling.
+- Docker support.
+- Authentication.
