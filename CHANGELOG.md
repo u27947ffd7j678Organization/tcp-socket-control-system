@@ -8,6 +8,9 @@ This project follows a phase-based development approach.
 
 ### Added
 
+- Added an experimental eBPF TCP monitor under `ebpf/`.
+- Added eBPF monitor documentation and build/run notes.
+- Added `.gitignore` rules for eBPF build outputs.
 - Added portfolio-focused README structure for Phase 8.
 - Added final demo, system architecture, and software architecture images to the repository preview.
 - Moved the English README to `docs/en/README.md`.
@@ -30,6 +33,9 @@ This project follows a phase-based development approach.
 
 ### Planned
 
+- eBPF peer IP/port display
+- eBPF port 5000 filtering
+- eBPF send/recv/close monitoring
 - CAN integration
 - STM32 integration
 - CSV logging

@@ -5,6 +5,7 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+!ebpf/Makefile
 compile_commands.json
 
 # Binaries and objects
@@ -24,6 +25,11 @@ CTestTestfile.cmake
 *.gcno
 *.gcov
 coverage/
+
+# eBPF build outputs
+ebpf/.output/
+ebpf/tcp_monitor
+ebpf/vmlinux.h
 
 # Python
 __pycache__/

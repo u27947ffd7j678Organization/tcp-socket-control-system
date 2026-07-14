@@ -6,15 +6,17 @@
 
 TCP Socket Control System は、Linux 上の C 言語 TCP サーバと、Windows 上の Python GUI クライアントが TCP/IP で通信するポートフォリオ用プロジェクトです。
 
-このプロジェクトでは、以下を実装しています。
+現在は、既存の TCP サーバ / クライアントに加えて、Linux 上の TCP 接続を観測する eBPF TCP Monitor も追加しています。eBPF モニタは独立した監視ツールであり、TCP サーバ本体、Python クライアント、通信プロトコルの挙動は変更していません。
+
+実装済みの内容:
 
 - Ubuntu 上で動作する C 言語 TCP Socket Server
 - Windows 上で動作する PySide6 GUI Client
+- Python 標準ライブラリのみを使う CLI Client
 - `PING`、`GET_STATUS`、`START`、`STOP`、`RESET`、`QUIT` のテキストベース通信プロトコル
 - サーバ応答から `STATE`、`TEMP`、`HUMI` を取り出して表示する Status Monitor
+- Linux の `connect()` を tracepoint で観測する eBPF TCP Monitor
 - CMake ビルド、CTest、pytest を実行する GitHub Actions CI
-
-現在は **Phase 8: GitHub Portfolio Refinement** まで完了しています。
 
 ## デモ画面
 
@@ -22,7 +24,7 @@ TCP Socket Control System は、Linux 上の C 言語 TCP サーバと、Windows
 
 Windows 側の GUI クライアントから、Linux 側の TCP サーバへ TCP/IP で接続して通信しています。
 
-実装済みの機能:
+主な機能:
 
 - TCP 接続 / 切断
 - `PING` / `PONG`
@@ -48,6 +50,38 @@ Windows 11 上の GUI クライアントが、Ubuntu 24.04 LTS 上の TCP サー
 - `TcpClientWorker`: 接続管理、コマンド送信、レスポンス受信、GUI への通知
 - `TCP Socket Server`: クライアント接続受付、コマンド受信、プロトコル解析、AppState 更新、レスポンス送信
 - `AppState`: サーバ内部状態として `STATE`、`TEMP`、`HUMI` を保持
+- `eBPF TCP Monitor`: Linux カーネルの `connect()` tracepoint を監視し、PID とプロセス名を表示
+
+## eBPF TCP Monitor
+
+`ebpf/` には、Linux 上の TCP 接続を観測する eBPF ベースの監視ツールを追加しています。
+
+現在の監視内容:
+
+- `sys_enter_connect` tracepoint への attach
+- `connect()` 発生時のイベント取得
+- PID とプロセス名の取得
+- Ring Buffer によるカーネル空間からユーザー空間へのイベント通知
+- ターミナルへのイベント表示
+
+現在の制約:
+
+- 接続先 IP アドレスとポート番号は未表示
+- port `5000` のみを対象にするフィルタは未実装
+- ホスト上のすべての `connect()` を観測
+- `accept` / `send` / `recv` / `close` の監視は未実装
+
+詳細は [ebpf/README.md](ebpf/README.md) を参照してください。
+
+```mermaid
+flowchart LR
+    Client["PySide6 GUI Client"] -->|connect| Kernel["Linux Kernel"]
+    Server["C TCP Server"] --> Kernel
+    Kernel -->|sys_enter_connect| BPF["tcp_monitor.bpf.c"]
+    BPF -->|struct event| Ring["Ring Buffer"]
+    Ring --> Monitor["tcp_monitor.c"]
+    Monitor --> Terminal["Terminal Output"]
+```
 
 ## シーケンス図
 
@@ -80,7 +114,6 @@ sequenceDiagram
     Handler-->>Server: "STATUS STATE=STOP TEMP=25.4 HUMI=52.1\n"
     Server-->>Client: status response
     Client-->>GUI: received(status response)
-    GUI->>GUI: _handle_received()
     GUI->>GUI: parse_status_response()
     GUI->>GUI: _update_status_monitor()
 
@@ -89,8 +122,7 @@ sequenceDiagram
     Server->>Handler: protocol_handle_command("SET_LED")
     Handler-->>Server: "ERROR UNKNOWN_COMMAND\n"
     Server-->>Client: error response
-    Client-->>GUI: received("ERROR UNKNOWN_COMMAND")
-    GUI->>GUI: append receive log
+    Client-->>GUI: append receive log
 
     GUI->>Client: QUIT button
     Client->>Server: "QUIT\n"
@@ -99,7 +131,6 @@ sequenceDiagram
     Server-->>Client: "OK BYE\n"
     Server->>Server: close sockets
     Client-->>GUI: disconnected signal
-    GUI->>GUI: status = Disconnected
 ```
 
 ## フローチャート
@@ -190,15 +221,20 @@ flowchart TD
 - PySide6
 - Python 標準ライブラリ `socket`
 
-### Development
+### eBPF Monitor
+
+- eBPF
+- libbpf
+- BPF CO-RE Skeleton
+- Ring Buffer
+- clang / bpftool / gcc
+
+### Development / CI
 
 - Git
 - GitHub
 - VS Code
 - SSH
-
-### CI
-
 - GitHub Actions
 - pytest
 - CTest
@@ -212,24 +248,22 @@ tcp-socket-control-system/
 |       `-- ci.yml
 |-- client/
 |   |-- python/
-|   |   |-- tcp_client.py
-|   |   `-- README.md
 |   `-- python_gui/
-|       |-- tcp_gui_client.py
-|       |-- status_parser.py
-|       |-- requirements.txt
-|       `-- README.md
 |-- docs/
 |   |-- en/
-|   |   `-- README.md
 |   |-- ja/
 |   `-- images/
+|-- ebpf/
+|   |-- Makefile
+|   |-- README.md
+|   |-- tcp_monitor.c
+|   |-- tcp_monitor.bpf.c
+|   `-- tcp_monitor.h
 |-- server/
 |   |-- include/
 |   |-- scripts/
 |   |-- src/
 |   |-- tests/
-|   |-- CMakeLists.txt
 |   `-- README.md
 |-- tests/
 |   `-- python/
@@ -258,19 +292,13 @@ cmake --build build
 ./build/server/tcp_socket_server
 ```
 
-デフォルトでは port `5000` で待ち受けます。
-
 ### Python CLI Client
-
-標準ライブラリのみを使う CLI クライアントです。
 
 ```bash
 python client/python/tcp_client.py --host 192.168.11.54 --port 5000
 ```
 
 ### PySide6 GUI Client
-
-仮想環境を作成し、GUI クライアントを起動します。
 
 ```bash
 cd client/python_gui
@@ -280,7 +308,26 @@ python -m pip install -r requirements.txt
 python tcp_gui_client.py
 ```
 
-Linux または macOS では `.venv\Scripts\activate` の代わりに `source .venv/bin/activate` を使用します。
+### eBPF TCP Monitor
+
+`~/libbpf-bootstrap` を準備した Ubuntu 上でビルドします。
+
+```bash
+cd ebpf
+make
+```
+
+実行には通常 root 権限が必要です。
+
+```bash
+sudo ./tcp_monitor
+```
+
+生成物を削除します。
+
+```bash
+make clean
+```
 
 ## GitHub Actions
 
@@ -309,6 +356,7 @@ ctest --test-dir build --output-on-failure
 - Server details: [server/README.md](server/README.md)
 - CLI client details: [client/python/README.md](client/python/README.md)
 - GUI client details: [client/python_gui/README.md](client/python_gui/README.md)
+- eBPF monitor details: [ebpf/README.md](ebpf/README.md)
 - Protocol specification: [docs/en/protocol_spec.md](docs/en/protocol_spec.md)
 - 日本語ドキュメント: [docs/ja/](docs/ja/)
 - 変更履歴: [CHANGELOG.md](CHANGELOG.md)
@@ -316,6 +364,9 @@ ctest --test-dir build --output-on-failure
 
 ## 今後の拡張候補
 
+- eBPF で接続先 IP / port を表示
+- port `5000` のフィルタリング
+- `send` / `recv` / `close` の監視
 - SocketCAN 連携
 - STM32 連携
 - CSV ログ保存

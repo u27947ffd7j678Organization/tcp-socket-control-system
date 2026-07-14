@@ -12,6 +12,7 @@ The system includes:
 - A PySide6 GUI client implemented in Python on Windows.
 - A command protocol for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
 - A GUI status monitor that displays `STATE`, `TEMP`, and `HUMI` values received from the server.
+- An experimental eBPF TCP monitor that observes Linux `connect()` events.
 - GitHub Actions CI for CMake build checks, CTest, and Python unit tests.
 
 The implementation is complete through **Phase 8: GitHub Portfolio Refinement**.
@@ -31,6 +32,26 @@ Implemented features:
 - `QUIT` command handling.
 - Status Monitor.
 - Communication Log.
+
+## eBPF TCP Monitor
+
+The repository also includes an experimental eBPF monitor under `ebpf/`.
+
+It observes Linux `connect()` system calls through the `sys_enter_connect` tracepoint and sends events to user space with a BPF ring buffer.
+
+Current event fields:
+
+- Event type
+- Process ID
+- Process command name
+
+Current limitations:
+
+- Peer IP address and port are not displayed yet.
+- Port `5000` filtering is not implemented yet.
+- The monitor observes host-level `connect()` calls, not only this TCP server project.
+
+See [../../ebpf/README.md](../../ebpf/README.md) for build and run instructions.
 
 ## System Architecture
 
@@ -184,6 +205,14 @@ flowchart TD
 - CMake
 - Linux, tested on Ubuntu 24.04 LTS
 
+### eBPF Monitor
+
+- eBPF
+- libbpf
+- BPF CO-RE skeleton
+- Ring Buffer
+- clang / bpftool / gcc
+
 ### Client
 
 - Python 3.10 or later
@@ -224,6 +253,12 @@ tcp-socket-control-system/
 |   |   `-- README.md
 |   |-- ja/
 |   `-- images/
+|-- ebpf/
+|   |-- Makefile
+|   |-- README.md
+|   |-- tcp_monitor.c
+|   |-- tcp_monitor.bpf.c
+|   `-- tcp_monitor.h
 |-- server/
 |   |-- include/
 |   |-- scripts/
@@ -282,6 +317,27 @@ python tcp_gui_client.py
 
 On Linux or macOS, use `source .venv/bin/activate` instead of `.venv\Scripts\activate`.
 
+### eBPF TCP Monitor
+
+Build the eBPF monitor on Linux after preparing `~/libbpf-bootstrap`:
+
+```bash
+cd ebpf
+make
+```
+
+Run the monitor with elevated privileges:
+
+```bash
+sudo ./tcp_monitor
+```
+
+Clean generated files:
+
+```bash
+make clean
+```
+
 ## GitHub Actions
 
 GitHub Actions runs on `push` and `pull_request`.
@@ -309,6 +365,7 @@ ctest --test-dir build --output-on-failure
 - Server details: [../../server/README.md](../../server/README.md)
 - CLI client details: [../../client/python/README.md](../../client/python/README.md)
 - GUI client details: [../../client/python_gui/README.md](../../client/python_gui/README.md)
+- eBPF monitor details: [../../ebpf/README.md](../../ebpf/README.md)
 - Protocol specification: [protocol_spec.md](protocol_spec.md)
 - Japanese documentation: [../ja/](../ja/)
 - Changelog: [../../CHANGELOG.md](../../CHANGELOG.md)
@@ -320,5 +377,6 @@ ctest --test-dir build --output-on-failure
 - STM32 integration.
 - CSV logging.
 - Periodic status polling.
+- eBPF port filtering and peer IP/port display.
 - Docker support.
 - Authentication.
