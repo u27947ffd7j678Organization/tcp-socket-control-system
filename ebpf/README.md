@@ -1,5 +1,7 @@
 # eBPF TCP Monitor
 
+[日本語版](README.ja.md)
+
 This directory contains an experimental eBPF-based TCP connection monitor for Linux.
 
 The monitor is separate from the TCP server and clients. It observes Linux `connect()` system calls through a tracepoint and prints events from user space.

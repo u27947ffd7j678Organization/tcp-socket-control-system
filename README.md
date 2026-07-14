@@ -71,7 +71,7 @@ Windows 11 上の GUI クライアントが、Ubuntu 24.04 LTS 上の TCP サー
 - ホスト上のすべての `connect()` を観測
 - `accept` / `send` / `recv` / `close` の監視は未実装
 
-詳細は [ebpf/README.md](ebpf/README.md) を参照してください。
+詳細は [ebpf/README.ja.md](ebpf/README.ja.md) を参照してください。
 
 ```mermaid
 flowchart LR
@@ -256,6 +256,7 @@ tcp-socket-control-system/
 |-- ebpf/
 |   |-- Makefile
 |   |-- README.md
+|   |-- README.ja.md
 |   |-- tcp_monitor.c
 |   |-- tcp_monitor.bpf.c
 |   `-- tcp_monitor.h
@@ -356,7 +357,7 @@ ctest --test-dir build --output-on-failure
 - Server details: [server/README.md](server/README.md)
 - CLI client details: [client/python/README.md](client/python/README.md)
 - GUI client details: [client/python_gui/README.md](client/python_gui/README.md)
-- eBPF monitor details: [ebpf/README.md](ebpf/README.md)
+- eBPF monitor details: [ebpf/README.ja.md](ebpf/README.ja.md)
 - Protocol specification: [docs/en/protocol_spec.md](docs/en/protocol_spec.md)
 - 日本語ドキュメント: [docs/ja/](docs/ja/)
 - 変更履歴: [CHANGELOG.md](CHANGELOG.md)

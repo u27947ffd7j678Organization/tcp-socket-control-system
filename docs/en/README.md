@@ -366,6 +366,7 @@ ctest --test-dir build --output-on-failure
 - CLI client details: [../../client/python/README.md](../../client/python/README.md)
 - GUI client details: [../../client/python_gui/README.md](../../client/python_gui/README.md)
 - eBPF monitor details: [../../ebpf/README.md](../../ebpf/README.md)
+- eBPF monitor Japanese details: [../../ebpf/README.ja.md](../../ebpf/README.ja.md)
 - Protocol specification: [protocol_spec.md](protocol_spec.md)
 - Japanese documentation: [../ja/](../ja/)
 - Changelog: [../../CHANGELOG.md](../../CHANGELOG.md)
