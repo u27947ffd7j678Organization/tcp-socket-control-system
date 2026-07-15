@@ -6,7 +6,7 @@
 
 TCP Socket Control System は、Linux 上の C 言語 TCP サーバと、Windows 上の Python GUI クライアントが TCP/IP で通信するポートフォリオ用プロジェクトです。
 
-現在は、既存の TCP サーバ / クライアントに加えて、Linux 上の TCP 接続を観測する eBPF TCP Monitor も追加しています。eBPF モニタは独立した監視ツールであり、TCP サーバ本体、Python クライアント、通信プロトコルの挙動は変更していません。
+現在は、既存の TCP サーバ / クライアントに加えて、Linux 上の TCP 通信を観測する eBPF TCP Monitor も追加しています。eBPF モニタは独立した監視ツールであり、TCP サーバ本体、Python クライアント、通信プロトコルの挙動は変更していません。
 
 実装済みの内容:
 
@@ -15,7 +15,9 @@ TCP Socket Control System は、Linux 上の C 言語 TCP サーバと、Windows
 - Python 標準ライブラリのみを使う CLI Client
 - `PING`、`GET_STATUS`、`START`、`STOP`、`RESET`、`QUIT` のテキストベース通信プロトコル
 - サーバ応答から `STATE`、`TEMP`、`HUMI` を取り出して表示する Status Monitor
-- Linux の `connect()` を tracepoint で観測する eBPF TCP Monitor
+- Linux の `connect()` と `recvfrom()` を tracepoint で観測する eBPF TCP Monitor
+- 受信データのバイト数、ASCII文字列、HEX表示
+- PID フィルタによる TCP サーバプロセスへの絞り込み
 - CMake ビルド、CTest、pytest を実行する GitHub Actions CI
 
 ## デモ画面
@@ -50,37 +52,47 @@ Windows 11 上の GUI クライアントが、Ubuntu 24.04 LTS 上の TCP サー
 - `TcpClientWorker`: 接続管理、コマンド送信、レスポンス受信、GUI への通知
 - `TCP Socket Server`: クライアント接続受付、コマンド受信、プロトコル解析、AppState 更新、レスポンス送信
 - `AppState`: サーバ内部状態として `STATE`、`TEMP`、`HUMI` を保持
-- `eBPF TCP Monitor`: Linux カーネルの `connect()` tracepoint を監視し、PID とプロセス名を表示
+- `eBPF TCP Monitor`: Linux カーネルの tracepoint を監視し、TCP サーバの受信データを表示
 
 ## eBPF TCP Monitor
 
-`ebpf/` には、Linux 上の TCP 接続を観測する eBPF ベースの監視ツールを追加しています。
+`ebpf/` には、Linux 上の TCP 通信を観測する eBPF ベースの監視ツールを追加しています。
 
 現在の監視内容:
 
-- `sys_enter_connect` tracepoint への attach
-- `connect()` 発生時のイベント取得
-- PID とプロセス名の取得
-- Ring Buffer によるカーネル空間からユーザー空間へのイベント通知
-- ターミナルへのイベント表示
+- `sys_enter_connect` で `connect()` を検知
+- `sys_enter_recvfrom` / `sys_exit_recvfrom` で `recvfrom()` を検知
+- ENTER 側で受信バッファのアドレスを BPF Hash Map に保存
+- EXIT 側で `ctx->ret` から受信バイト数を取得
+- `bpf_probe_read_user()` で受信文字列を最大64バイト取得
+- Ring Buffer 経由でユーザー空間へイベント通知
+- 受信データを ASCII 文字列と HEX で表示
+- `sudo ./tcp_monitor <pid>` による PID フィルタ
 
-現在の制約:
+動作確認スクリーンショット:
 
-- 接続先 IP アドレスとポート番号は未表示
-- port `5000` のみを対象にするフィルタは未実装
-- ホスト上のすべての `connect()` を観測
-- `accept` / `send` / `recv` / `close` の監視は未実装
+![eBPF recv monitor](docs/images/ebpf-recv-monitor-phase2.png)
+
+出力例:
+
+```text
+RECV pid=55889 comm=tcp_socket_serv bytes=5 data_len=5 data="PING\n" hex=50 49 4E 47 0A
+RECV pid=55889 comm=tcp_socket_serv bytes=6 data_len=6 data="START\n" hex=53 54 41 52 54 0A
+RECV pid=55889 comm=tcp_socket_serv bytes=5 data_len=5 data="STOP\n" hex=53 54 4F 50 0A
+```
 
 詳細は [ebpf/README.ja.md](ebpf/README.ja.md) を参照してください。
 
 ```mermaid
-flowchart LR
-    Client["PySide6 GUI Client"] -->|connect| Kernel["Linux Kernel"]
-    Server["C TCP Server"] --> Kernel
-    Kernel -->|sys_enter_connect| BPF["tcp_monitor.bpf.c"]
-    BPF -->|struct event| Ring["Ring Buffer"]
+flowchart TD
+    GUI["PySide6 GUI Client"] -->|"send command"| Server["tcp_socket_server recv()"]
+    Server --> Enter["sys_enter_recvfrom"]
+    Enter --> Map["recv_args_map"]
+    Map --> Exit["sys_exit_recvfrom"]
+    Exit --> Copy["bpf_probe_read_user()"]
+    Copy --> Ring["Ring Buffer"]
     Ring --> Monitor["tcp_monitor.c"]
-    Monitor --> Terminal["Terminal Output"]
+    Monitor --> Output["ASCII / HEX terminal output"]
 ```
 
 ## シーケンス図
@@ -116,13 +128,6 @@ sequenceDiagram
     Client-->>GUI: received(status response)
     GUI->>GUI: parse_status_response()
     GUI->>GUI: _update_status_monitor()
-
-    GUI->>Client: SET_LED example
-    Client->>Server: "SET_LED\n"
-    Server->>Handler: protocol_handle_command("SET_LED")
-    Handler-->>Server: "ERROR UNKNOWN_COMMAND\n"
-    Server-->>Client: error response
-    Client-->>GUI: append receive log
 
     GUI->>Client: QUIT button
     Client->>Server: "QUIT\n"
@@ -227,6 +232,7 @@ flowchart TD
 - libbpf
 - BPF CO-RE Skeleton
 - Ring Buffer
+- Hash Map
 - clang / bpftool / gcc
 
 ### Development / CI
@@ -280,16 +286,9 @@ tcp-socket-control-system/
 
 ### Server
 
-Linux 上で C TCP サーバをビルドします。
-
 ```bash
 cmake -S . -B build
 cmake --build build
-```
-
-サーバを起動します。
-
-```bash
 ./build/server/tcp_socket_server
 ```
 
@@ -322,6 +321,13 @@ make
 
 ```bash
 sudo ./tcp_monitor
+```
+
+TCP サーバの PID に絞る場合:
+
+```bash
+pgrep tcp_socket_server
+sudo ./tcp_monitor <pid>
 ```
 
 生成物を削除します。
@@ -366,8 +372,9 @@ ctest --test-dir build --output-on-failure
 ## 今後の拡張候補
 
 - eBPF で接続先 IP / port を表示
-- port `5000` のフィルタリング
-- `send` / `recv` / `close` の監視
+- BPF プログラム側で port `5000` をフィルタリング
+- `send` / `close` の監視
+- `accept` の監視
 - SocketCAN 連携
 - STM32 連携
 - CSV ログ保存

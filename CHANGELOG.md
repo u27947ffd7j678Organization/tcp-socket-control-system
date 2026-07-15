@@ -8,6 +8,10 @@ This project follows a phase-based development approach.
 
 ### Added
 
+- Added eBPF recvfrom enter/exit monitoring.
+- Added receive payload byte count, escaped ASCII display, and HEX display to the eBPF monitor.
+- Added optional PID filtering for the eBPF monitor with `sudo ./tcp_monitor <pid>`.
+- Added eBPF recv monitor screenshot under `docs/images/`.
 - Added an experimental eBPF TCP monitor under `ebpf/`.
 - Added eBPF monitor documentation and build/run notes.
 - Added Japanese eBPF monitor documentation under `ebpf/README.ja.md`.

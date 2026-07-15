@@ -12,7 +12,9 @@ The system includes:
 - A PySide6 GUI client implemented in Python on Windows.
 - A command protocol for `PING`, `GET_STATUS`, `START`, `STOP`, `RESET`, and `QUIT`.
 - A GUI status monitor that displays `STATE`, `TEMP`, and `HUMI` values received from the server.
-- An experimental eBPF TCP monitor that observes Linux `connect()` events.
+- An experimental eBPF TCP monitor that observes Linux `connect()` and `recvfrom()` events.
+- Receive payload display as byte count, escaped ASCII, and hexadecimal bytes.
+- PID filtering for focusing on the TCP server process.
 - GitHub Actions CI for CMake build checks, CTest, and Python unit tests.
 
 The implementation is complete through **Phase 8: GitHub Portfolio Refinement**.
@@ -37,19 +39,42 @@ Implemented features:
 
 The repository also includes an experimental eBPF monitor under `ebpf/`.
 
-It observes Linux `connect()` system calls through the `sys_enter_connect` tracepoint and sends events to user space with a BPF ring buffer.
+It observes Linux `connect()` and `recvfrom()` system calls through tracepoints and sends events to user space with a BPF ring buffer.
 
 Current event fields:
 
 - Event type
 - Process ID
 - Process command name
+- Received byte count
+- Received payload length
+- Received payload, capped at 64 bytes
+
+## eBPF Recv Monitor Screenshot
+
+![eBPF recv monitor](../images/ebpf-recv-monitor-phase2.png)
+
+The monitor can be filtered to the TCP server process by passing the server PID:
+
+```bash
+pgrep tcp_socket_server
+sudo ./tcp_monitor <pid>
+```
+
+Example receive output:
+
+```text
+RECV pid=55889 comm=tcp_socket_serv bytes=5 data_len=5 data="PING\n" hex=50 49 4E 47 0A
+RECV pid=55889 comm=tcp_socket_serv bytes=6 data_len=6 data="START\n" hex=53 54 41 52 54 0A
+RECV pid=55889 comm=tcp_socket_serv bytes=5 data_len=5 data="STOP\n" hex=53 54 4F 50 0A
+```
 
 Current limitations:
 
+- Receive payload copying is capped at 64 bytes.
 - Peer IP address and port are not displayed yet.
-- Port `5000` filtering is not implemented yet.
-- The monitor observes host-level `connect()` calls, not only this TCP server project.
+- Port `5000` filtering is not implemented in the BPF program yet.
+- `accept`, `send`, and `close` monitoring are not implemented yet.
 
 See [../../ebpf/README.md](../../ebpf/README.md) for build and run instructions.
 
@@ -211,6 +236,7 @@ flowchart TD
 - libbpf
 - BPF CO-RE skeleton
 - Ring Buffer
+- Hash Map
 - clang / bpftool / gcc
 
 ### Client
@@ -332,6 +358,13 @@ Run the monitor with elevated privileges:
 sudo ./tcp_monitor
 ```
 
+Filter output to the TCP server process:
+
+```bash
+pgrep tcp_socket_server
+sudo ./tcp_monitor <pid>
+```
+
 Clean generated files:
 
 ```bash
@@ -378,6 +411,8 @@ ctest --test-dir build --output-on-failure
 - STM32 integration.
 - CSV logging.
 - Periodic status polling.
-- eBPF port filtering and peer IP/port display.
+- eBPF peer IP/port display.
+- eBPF port 5000 filtering in the BPF program.
+- eBPF send/close monitoring.
 - Docker support.
 - Authentication.
